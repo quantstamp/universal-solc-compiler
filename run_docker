@@ -1,0 +1,6 @@
+docker build -t usolc-node .
+
+docker run -it \
+       -v /var/run/docker.sock:/var/run/docker.sock \
+       -v /tmp:/tmp \
+usolc-node sh

@@ -1,0 +1,11 @@
+#!/bin/bash
+SOLCVERSION=('0.5.0' '0.4.25' '0.4.24' '0.4.23' '0.4.22' '0.4.21' '0.4.20')
+
+for version in "${SOLCVERSION[@]}"
+do
+    echo "Downloading solc-$version"
+    link="https://github.com/ethereum/solidity/releases/download/v$version/solc-static-linux"
+    wget $link
+    chmod +x solc-static-linux
+    mv solc-static-linux "/usr/local/bin/solc-versions/solc-$version"
+done
