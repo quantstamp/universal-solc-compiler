@@ -41,13 +41,13 @@ def semver_filter(version_list, rule_text):
     filter_result = filter(full_rule_filter, version_list)
     return filter_result
 
+pragma_solidity = re.compile(r'pragma\ssolidity\s(.*);', re.IGNORECASE)
 
 def extract_pragma_line(filename):
     """
     Opens the file, then find the line that indicates the solidity version
     Returns that line
     """
-    pragma_solidity = re.compile(r'pragma\ssolidity\s', re.IGNORECASE)
     pragma_line = None
 
     with open(filename, 'r') as file:
@@ -67,7 +67,6 @@ def getrule_from_pragma(line):
     """
     Extract the rule from the version line in solidity file.
     """
-    pragma_solidity = re.compile(r'pragma\ssolidity\s(.*);', re.IGNORECASE)
     version_match = pragma_solidity.search(line)
     version_rule = version_match.group(1)
 
@@ -238,4 +237,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())
