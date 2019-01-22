@@ -17,6 +17,10 @@ import re
 import subprocess
 import semver
 from enum import Enum
+from exceptions.filename_not_found_in_argument import FilenameNotFoundInArgument
+from exceptions.pragmaline_notfound_error import PragmaLineNotFoundError
+from exceptions.noversion_available_by_sol import NoVersionAvailableBySol
+from exceptions.noversion_available_by_user import NoVersionAvailableByUser
 
 
 def make_semver_filter(rule_text):
@@ -36,10 +40,6 @@ def semver_filter(version_list, rule_text):
     full_rule_filter = make_semver_filter(rule_text)
     filter_result = filter(full_rule_filter, version_list)
     return filter_result
-
-
-class PragmaLineNotFoundError(Exception):
-    pass
 
 
 def extract_pragma_line(filename):
@@ -81,10 +81,6 @@ def getrule_from_file(filename):
     pragma_line = extract_pragma_line(filename)
     semver_rule = getrule_from_pragma(pragma_line)
     return semver_rule
-
-
-class FilenameNotFoundInArgument(Exception):
-    pass
 
 
 def extract_arguments(sargv):
@@ -180,21 +176,6 @@ def choose_version_by_strategy(target_list, version_selection_strategy):
         result = semver.min_satisfying(target_list, target_range, loose=True)
 
     return result
-
-
-class NoVersionAvailableBySol(Exception):
-    def __init__(self, available_versions, sol_rule, msg):
-        super(NoVersionAvailableBySol, self).__init__(msg)
-        self.available_versions = available_versions
-        self.sol_rule = sol_rule
-
-
-class NoVersionAvailableByUser(Exception):
-    def __init__(self, available_versions, sol_rule, user_rule, msg):
-        super(NoVersionAvailableByUser, self).__init__(msg)
-        self.available_versions = available_versions
-        self.sol_rule = sol_rule
-        self.user_rule = user_rule
 
 
 def choose_version_by_argument(available_versions, filename, version_selection_strategy):    

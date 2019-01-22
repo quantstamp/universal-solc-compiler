@@ -1,0 +1,3 @@
+class PragmaLineNotFoundError(Exception):
+    pass
+

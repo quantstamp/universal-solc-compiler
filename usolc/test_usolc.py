@@ -8,9 +8,8 @@
 ####################################################################################################
 
 
-from usolc import * 
+from usolc.usolc import *
 import pytest
-
 
 @pytest.fixture
 def sample_version_list():

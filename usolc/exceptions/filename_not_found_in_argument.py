@@ -1,0 +1,2 @@
+class FilenameNotFoundInArgument(Exception):
+    pass
