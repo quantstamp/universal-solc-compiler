@@ -22,7 +22,7 @@ RUN apk add --no-cache python3 && \
 RUN apk add --no-cache libtool
 
 # Install node-semver for usolc
-RUN pip3 install -U node-semver
+RUN pip3 install -U 'node-semver==0.6.1' 
 
 # Install solc
 ## Create solc-versions directory
@@ -38,6 +38,9 @@ COPY . .
 RUN chmod +x ./usolc/solc_download
 RUN ./usolc/solc_download
 
+# Copying usolc scripts
 RUN cp ./usolc/usolc.py /usr/local/bin/solc-versions/usolc.py
+RUN cp -r ./usolc/exceptions /usr/local/bin/solc-versions/exceptions
 RUN cp ./usolc/solc /usr/local/bin/solc
 RUN chmod +x /usr/local/bin/solc
+
