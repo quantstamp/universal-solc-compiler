@@ -11,13 +11,14 @@
 from usolc.usolc import *
 import pytest
 
+
 @pytest.fixture
 def sample_version_list():
-    return ["0.3.9", "0.4.1", "0.4.2", "0.4.3", "0.5.0", "1.0.0", "1.0.1"]
+    return ["0.3.9", "0.4.1", "0.4.2", "0.4.3", "0.4.18", "0.5.0", "1.0.0", "1.0.1"]
 
 
-@pytest.mark.parametrize(   "rule_text,expected_result", [
-    ("^0.4.2", ["0.4.2", "0.4.3"]),
+@pytest.mark.parametrize("rule_text,expected_result", [
+    ("^0.4.2", ["0.4.2", "0.4.3", "0.4.18"]),
 ])
 def test_semver_filter(sample_version_list, rule_text, expected_result):
     """ Test semver_filter """
@@ -26,14 +27,14 @@ def test_semver_filter(sample_version_list, rule_text, expected_result):
 
 
 @pytest.mark.parametrize("filename,expected_line",[
-    ("resources/exactly_one.sol","pragma solidity 0.4.18;\n"),
-    ("resources/caret.sol","pragma solidity ^0.4.18;\n"),
-    ("resources/range.sol","pragma solidity >=0.4.22 <0.6.0;\n"),
-    ("resources/range_or_one.sol","pragma solidity 0.4.21 || >=0.4.25 <0.6.0;\n"),       
+    ("exactly_one.sol","pragma solidity 0.4.18;\n"),
+    ("caret.sol","pragma solidity ^0.4.18;\n"),
+    ("range.sol","pragma solidity >=0.4.22 <0.6.0;\n"),
+    ("range_or_one.sol","pragma solidity 0.4.21 || >=0.4.25 <0.6.0;\n"),
 ])
 def test_extract_pragma_line(filename,expected_line):
     """ Test extract_pragma_line for cases that there both the file and the pragma line exist """
-    extracted_line = extract_pragma_line(filename)
+    extracted_line = extract_pragma_line("resources/"+filename)
     assert(expected_line == extracted_line) 
 
 
@@ -76,7 +77,6 @@ def test_getrule_from_file(filename,expected_rule):
     assert(expected_rule == extracted_rule) 
 
 
-
 @pytest.mark.parametrize("sys_argv, expected_result",[
     (["solc","hello.sol", "-U", "0.4.2+" , "--abi", "hello"],
      ["hello.sol", ["0.4.2", VersionChoosing.NEWEST], ["hello.sol","--abi", "hello"]]),
@@ -96,7 +96,7 @@ def test_extract_arguments(sys_argv, expected_result):
     assert(expected_result == extracted_result)   
 
 
-def test_extract_arguments_throw_filename_not_found_in_argument():
+def test_extract_arguments_throws_filename_not_found_in_argument():
     """ Test extract_arguments throws FilenameNotFoundInArgument when .sol is not found """
     with pytest.raises(FilenameNotFoundInArgument):
         extract_arguments(["solc", "--abi"])
@@ -115,9 +115,8 @@ def test_interpret_strategy_string(strategy_string, expected_result):
     assert(extracted_result == expected_result)
 
 
-# choose_version_by_strategy
 @pytest.mark.parametrize("version_selection_strategy, expected_version",[
-    (["^0.4.1", VersionChoosing.NEWEST],"0.4.3"),
+    (["^0.4.1", VersionChoosing.NEWEST],"0.4.18"),
 ])
 def test_choose_version_by_strategy(sample_version_list,
                                     version_selection_strategy, expected_version):
@@ -125,3 +124,38 @@ def test_choose_version_by_strategy(sample_version_list,
     result_version = choose_version_by_strategy(sample_version_list, version_selection_strategy)
     assert(result_version == expected_version)
 
+
+@pytest.mark.parametrize("filename, version_selection_strategy, expected_version",[
+    ("exactly_one.sol", ["^0.4.1", VersionChoosing.NEWEST], "0.4.18"),
+    ("caret.sol", ["0.4.18", VersionChoosing.NEWEST], "0.4.18"),
+    ("range.sol", ["*", VersionChoosing.NEWEST], "0.5.0"),
+    ("range_or_one.sol",["*", VersionChoosing.NEWEST], "0.5.0"),
+])
+def test_choose_version_by_argument_normal(sample_version_list,
+                                           filename, version_selection_strategy, expected_version):
+    """ Test choose_version_by_argument when all arguments are properly given """
+    filelocation = "resources/" + filename
+    result_version = \
+        choose_version_by_argument(sample_version_list, filelocation, version_selection_strategy)
+    assert(expected_version == result_version)
+
+
+def test_choose_version_by_argument_throws_no_version_available_by_sol(sample_version_list):
+    """
+    Test choose_version_by_argument
+    when rule from solidity ruled out all available solutions,
+    it should throw NoVersionAvailableBySol
+    """
+    with pytest.raises(NoVersionAvailableBySol):
+        choose_version_by_argument(["0.3.9"], "resources/exactly_one.sol", ["*", VersionChoosing.NEWEST])
+
+
+def test_choose_version_by_argument_throws_no_version_available_by_user(sample_version_list):
+    """
+    Test choose_version_by_argument when rule from solidity
+    when rule specified by the user ruled out all available solutions,
+    it should throw NoVersionAvailableByUser
+    """
+    with pytest.raises(NoVersionAvailableByUser):
+        choose_version_by_argument(["0.4.18"],
+                                   "resources/exactly_one.sol", ["^0.4.19", VersionChoosing.NEWEST])
