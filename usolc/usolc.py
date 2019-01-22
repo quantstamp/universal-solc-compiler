@@ -9,7 +9,15 @@
 
 """
  Find *.sol in the arguments, then parse the file to determine the version from first pragma
- finally, we will send all the parameters to the specific version of solc 
+ finally, we will send all the parameters to the specific version of solc
+
+ solc ....... -U 0.4.2           use compiler 0.4.2
+ solc ....... -U 0.4.*           use newest compiler in 0.4.*
+ solc ....... -U 0.4.*+          use newest compiler in 0.4.*
+ solc ....... -U 0.4.*-          use oldest compiler in 0.4.* (- not supported by library)
+ solc ....... -U +               use newest compiler available
+ solc ....... -U -               use oldest compiler available (- not supported by library)
+
 """
 
 import sys
@@ -41,7 +49,9 @@ def semver_filter(version_list, rule_text):
     filter_result = filter(full_rule_filter, version_list)
     return filter_result
 
+
 pragma_solidity = re.compile(r'pragma\ssolidity\s(.*);', re.IGNORECASE)
+
 
 def extract_pragma_line(filename):
     """
@@ -177,7 +187,7 @@ def choose_version_by_strategy(target_list, version_selection_strategy):
     return result
 
 
-def choose_version_by_argument(available_versions, filename, version_selection_strategy):    
+def choose_version_by_argument(available_versions, filename, version_selection_strategy):
     sol_rule = getrule_from_file(filename)
     filtered_by_sol_compiler_list = list(semver_filter(available_versions, sol_rule))
     if not filtered_by_sol_compiler_list:
