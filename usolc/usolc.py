@@ -71,7 +71,7 @@ def getrule_from_pragma(line):
     version_match = pragma_solidity.search(line)
     version_rule = version_match.group(1)
 
-    return version_match.group(1)
+    return version_rule
 
 
 def getrule_from_file(filename):
@@ -206,7 +206,8 @@ def choose_version_by_argument(available_versions, filename, version_selection_s
                 "No solc version that satisfies the requirement of the solidity file")
 
     user_rule = version_selection_strategy
-    version_chosen = choose_version_by_strategy(filtered_by_sol_compiler_list, version_selection_strategy)
+    version_chosen = choose_version_by_strategy(filtered_by_sol_compiler_list,
+                                                version_selection_strategy)
     if version_chosen is None:
         raise NoVersionAvailableByUser(
                 available_versions, sol_rule, user_rule,
@@ -230,7 +231,8 @@ def main():
 
     try:
         [filename, version_selection_strategy, native_argv] = extract_arguments(sys.argv)
-        version_chosen = choose_version_by_argument(valid_versions, filename, version_selection_strategy)
+        version_chosen = choose_version_by_argument(valid_versions, filename,
+                                                    version_selection_strategy)
         run_solc(version_chosen, native_argv)
         return 0
     except PragmaLineNotFoundError:
@@ -244,7 +246,8 @@ def main():
         print("Solidity file's requirement: ")
         print(e.sol_rule)
     except NoVersionAvailableByUser as e:
-        print("Cannot find solc version that meets both the requirement of the solidity file and the user requirement")
+        print("Cannot find solc version that meets both the requirement of "
+              "the solidity file and the user requirement")
         print("Solidity file's requirement: ")
         print(e.sol_rule)
         print("User's requirement: ")
