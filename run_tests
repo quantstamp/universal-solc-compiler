@@ -1,0 +1,3 @@
+#!/bin/bash
+
+PYTHONPATH=./tests:./usolc pytest --cov=usolc -s -v --disable-pytest-warnings --cov-config .coveragerc --cov-report term-missing --cov-report html tests/

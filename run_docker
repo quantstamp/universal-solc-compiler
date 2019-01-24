@@ -1,3 +1,4 @@
+#!/bin/bash
 docker build -t usolc-node .
 
 docker run -it \

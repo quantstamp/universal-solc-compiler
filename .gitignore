@@ -1,3 +1,5 @@
 .idea/
 usolc/__pycache__/
 usolc/exceptions/__pycache__/
+tests/coverage/.coverage
+tests/coverage/htmlcov
