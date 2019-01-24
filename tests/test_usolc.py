@@ -115,6 +115,18 @@ def test_interpret_strategy_string(strategy_string, expected_result):
     assert(extracted_result == expected_result)
 
 
+def test_semver_min_satisfying_normal(sample_version_list):
+    """ Test semver_min_satisfying when there should be a result_version """
+    result_version = semver_min_satisfying(sample_version_list, "*")
+    assert(result_version == "0.3.9")
+
+
+def test_semver_min_satisfying_none(sample_version_list):
+    """ Test semver_min_satisfying when result_version should be None """
+    result_version = semver_min_satisfying(sample_version_list, ">5.0.0")
+    assert(result_version is None)
+
+
 @pytest.mark.parametrize("version_selection_strategy, expected_version",[
     (["^0.4.1", VersionChoosing.NEWEST],"0.4.18"),
 ])

@@ -14,9 +14,9 @@
  solc ....... -U 0.4.2           use compiler 0.4.2
  solc ....... -U 0.4.*           use newest compiler in 0.4.*
  solc ....... -U 0.4.*+          use newest compiler in 0.4.*
- solc ....... -U 0.4.*-          use oldest compiler in 0.4.* (- not supported by library)
+ solc ....... -U 0.4.*-          use oldest compiler in 0.4.*
  solc ....... -U +               use newest compiler available
- solc ....... -U -               use oldest compiler available (- not supported by library)
+ solc ....... -U -               use oldest compiler available
 
 """
 
@@ -144,9 +144,6 @@ def interpret_strategy_string(strategy_string):
 
     if + or - is not indicated, then the default would be "prefer newest compiler"
 
-    Currently, since min_satisfying is not implemented by node-semver, 
-    therefore - is not functioning, it will be treated as + as well.
-
     """
     choosing = None
     version_filter = []
@@ -158,9 +155,6 @@ def interpret_strategy_string(strategy_string):
         choosing = VersionChoosing.NEWEST
         version_filter = strategy_string[:-1]
     elif strategy_string[-1] == "-":
-        # min_satisfying is not implemented by the library yet
-        print("WARNING: the codebase currently doesn't support getting the oldest" 
-              "version of the compilers")
         choosing = VersionChoosing.OLDEST
         version_filter = strategy_string[:-1]
     else:
@@ -168,6 +162,23 @@ def interpret_strategy_string(strategy_string):
         version_filter = strategy_string
 
     return [version_filter, choosing]
+
+
+def semver_min_satisfying(target_list, target_range):
+    """
+    Implementing the min_satisfying according to Node-Semver spec
+    Obtaining the minimum/oldest version that satisfies target_range from the list
+    """
+    result_version = None
+    user_filtered_list = semver_filter(target_list, target_range)
+
+    for each_version in user_filtered_list:
+        if result_version is None:
+            result_version = each_version
+        elif semver.gt(result_version, each_version, loose=True):
+            result_version = each_version
+
+    return result_version
 
 
 def choose_version_by_strategy(target_list, version_selection_strategy):
@@ -181,8 +192,8 @@ def choose_version_by_strategy(target_list, version_selection_strategy):
     if choosing == VersionChoosing.NEWEST:
         result = semver.max_satisfying(target_list, target_range, loose=True)
     else:
-        # min_satisfying is not implemented by the library yet
-        result = semver.min_satisfying(target_list, target_range, loose=True)
+        # min_satisfying is not implemented by the library yet, using our own implementation
+        result = semver_min_satisfying(target_list, target_range)
 
     return result
 
