@@ -18,10 +18,10 @@ run: build
 	   usolc-node sh
 
 test-ci: 
-	docker run -it \
+	docker run -t \
        -v /var/run/docker.sock:/var/run/docker.sock \
        -v /tmp:/tmp \
-	   usolc-node "./run_tests"
+	   usolc-node sh -c "./run_tests"
 
 clean:
 	find . | egrep "^.*/(__pycache__|.*\.pyc|tests/coverage/htmlcov|tests/coverage/.coverage|app.tar)$$" | xargs rm -rf
