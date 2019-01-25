@@ -115,10 +115,14 @@ def test_interpret_strategy_string(strategy_string, expected_result):
     assert(extracted_result == expected_result)
 
 
-def test_semver_min_satisfying_normal(sample_version_list):
+@pytest.mark.parametrize("version_list, expected_version", [
+    (["0.3.9", "0.4.1", "0.4.2", "0.4.3", "0.4.18", "0.5.0", "1.0.0", "1.0.1"], "0.3.9"),
+    (["1.0.1","0.4.1", "0.3.9", "0.4.2", "0.4.3", "0.4.18", "0.5.0", "1.0.0"],  "0.3.9"),
+])
+def test_semver_min_satisfying_normal(version_list, expected_version):
     """ Test semver_min_satisfying when there should be a result_version """
-    result_version = semver_min_satisfying(sample_version_list, "*")
-    assert(result_version == "0.3.9")
+    result_version = semver_min_satisfying(version_list, "*")
+    assert(result_version == expected_version)
 
 
 def test_semver_min_satisfying_none(sample_version_list):
@@ -127,8 +131,9 @@ def test_semver_min_satisfying_none(sample_version_list):
     assert(result_version is None)
 
 
-@pytest.mark.parametrize("version_selection_strategy, expected_version",[
+@pytest.mark.parametrize("version_selection_strategy, expected_version", [
     (["^0.4.1", VersionChoosing.NEWEST],"0.4.18"),
+    (["^0.4.1", VersionChoosing.OLDEST], "0.4.1"),
 ])
 def test_choose_version_by_strategy(sample_version_list,
                                     version_selection_strategy, expected_version):
@@ -137,7 +142,7 @@ def test_choose_version_by_strategy(sample_version_list,
     assert(result_version == expected_version)
 
 
-@pytest.mark.parametrize("filename, version_selection_strategy, expected_version",[
+@pytest.mark.parametrize("filename, version_selection_strategy, expected_version", [
     ("exactly_one.sol", ["^0.4.1", VersionChoosing.NEWEST], "0.4.18"),
     ("caret.sol", ["0.4.18", VersionChoosing.NEWEST], "0.4.18"),
     ("range.sol", ["*", VersionChoosing.NEWEST], "0.5.0"),
@@ -152,7 +157,7 @@ def test_choose_version_by_argument_normal(sample_version_list,
     assert(expected_version == result_version)
 
 
-def test_choose_version_by_argument_throws_no_version_available_by_sol(sample_version_list):
+def test_choose_version_by_argument_throws_no_version_available_by_sol():
     """
     Test choose_version_by_argument
     when rule from solidity ruled out all available solutions,
@@ -162,7 +167,7 @@ def test_choose_version_by_argument_throws_no_version_available_by_sol(sample_ve
         choose_version_by_argument(["0.3.9"], "resources/exactly_one.sol", ["*", VersionChoosing.NEWEST])
 
 
-def test_choose_version_by_argument_throws_no_version_available_by_user(sample_version_list):
+def test_choose_version_by_argument_throws_no_version_available_by_user():
     """
     Test choose_version_by_argument when rule from solidity
     when rule specified by the user ruled out all available solutions,

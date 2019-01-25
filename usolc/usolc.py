@@ -212,7 +212,7 @@ def choose_version_by_argument(available_versions, filename, version_selection_s
     if version_chosen is None:
         raise NoVersionAvailableByUser(
                 available_versions, sol_rule, user_rule,
-                "No solc version that satisfies both the requirement of"+
+                "No solc version that satisfies both the requirement of" +
                 " the solidity file and the user's rule")
 
     return version_chosen
@@ -226,7 +226,9 @@ def run_solc(version_chosen, native_argv):
 
 
 def main():
-    valid_versions = ["0.5.0", "0.4.25", "0.4.24", "0.4.23", "0.4.22", "0.4.21", "0.4.20"]
+    valid_versions = ["0.5.3", "0.5.2", "0.5.1", "0.5.0", "0.4.25", "0.4.24", "0.4.23", "0.4.22",
+                      "0.4.21", "0.4.20", "0.4.19", "0.4.18", "0.4.17"]
+
     print("#################################################")
     print("Available solc versions are: " + str(valid_versions))
 
