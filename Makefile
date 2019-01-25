@@ -20,6 +20,7 @@ run: build
 test-ci: 
 	docker run -t \
        -v /var/run/docker.sock:/var/run/docker.sock \
+	   -v $(PWD)/tests/coverage:/app/tests/coverage \
        -v /tmp:/tmp \
 	   usolc-node sh -c "./run_tests"
 
