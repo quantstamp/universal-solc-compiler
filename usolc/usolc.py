@@ -37,7 +37,6 @@ class VersionChoosing(Enum):
 
 pragma_solidity = re.compile(r'pragma\ssolidity\s(.*);', re.IGNORECASE)
 additional_info = False
-filename_not_found_in_argument = False
 
 
 def make_semver_filter(rule_text):
@@ -103,7 +102,7 @@ def extract_arguments(sargv):
     Iterate through the arguments for the universal compiler, 
     then remove them if they're not needed in the usual solc compiler
     """
-    global additional_info, filename_not_found_in_argument
+    global additional_info
     argv = sargv[1:]
 
     filename = None
@@ -124,9 +123,6 @@ def extract_arguments(sargv):
             if arg[-4:] == ".sol":
                 filename = arg
             native_argv.append(arg)
-
-    if filename is None:
-        filename_not_found_in_argument = True
 
     version_selection_strategy = interpret_strategy_string(version_selection_strategy_str)
 
@@ -208,8 +204,7 @@ def choose_version_by_argument(available_versions, filename, version_selection_s
         (2) filtering it through the user specification
         (3) Choose a version according to the user's preference
     """
-    global filename_not_found_in_argument
-    if filename_not_found_in_argument:
+    if filename is None:
         filtered_by_sol_compiler_list = available_versions
     else:
         sol_rule = getrule_from_file(filename)

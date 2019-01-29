@@ -78,17 +78,20 @@ def test_getrule_from_file(filename,expected_rule):
 
 
 @pytest.mark.parametrize("sys_argv, expected_result",[
-    (["solc","hello.sol", "-U", "0.4.2+" , "--abi", "hello"],
+    (["solc", "hello.sol", "-U", "0.4.2+" , "--abi", "hello", "-uinfo"],
      ["hello.sol", ["0.4.2", VersionChoosing.NEWEST], ["hello.sol","--abi", "hello"]]),
 
-    (["solc","hello.sol", "-U", "0.4.2+" , "--abi"],
+    (["solc", "hello.sol", "-U", "0.4.2+" , "--abi"],
      ["hello.sol", ["0.4.2", VersionChoosing.NEWEST],["hello.sol","--abi"]]),
 
-    (["solc","hello.sol", "--abi"],
+    (["solc", "hello.sol", "--abi"],
      ["hello.sol", ["*",VersionChoosing.NEWEST], ["hello.sol","--abi"]]),
 
-    (["solc","hello.sol"],
-     ["hello.sol", ["*",VersionChoosing.NEWEST], ["hello.sol"]]),
+    (["solc", "hello.sol"],
+     ["hello.sol", ["*", VersionChoosing.NEWEST], ["hello.sol"]]),
+
+    (["solc", "--version"],
+     [None, ["*", VersionChoosing.NEWEST], ["--version"]]),
 ])
 def test_extract_arguments(sys_argv, expected_result):
     """ Test extract_arguments when .sol is found in the parameters"""
@@ -140,12 +143,18 @@ def test_choose_version_by_strategy(sample_version_list,
     ("exactly_one.sol", ["^0.4.1", VersionChoosing.NEWEST], "0.4.18"),
     ("caret_0.4.sol", ["0.4.18", VersionChoosing.NEWEST], "0.4.18"),
     ("range.sol", ["*", VersionChoosing.NEWEST], "0.5.0"),
-    ("range_or_one.sol",["*", VersionChoosing.NEWEST], "0.5.0"),
+    ("range_or_one.sol", ["*", VersionChoosing.NEWEST], "0.5.0"),
+    (None, ["*", VersionChoosing.NEWEST], "1.0.1"),
 ])
 def test_choose_version_by_argument_normal(sample_version_list,
                                            filename, version_selection_strategy, expected_version):
     """ Test choose_version_by_argument when all arguments are properly given """
-    filelocation = "resources/" + filename
+
+    if filename is None:
+        filelocation = None
+    else:
+        filelocation = "resources/" + filename
+
     result_version = \
         choose_version_by_argument(sample_version_list, filelocation, version_selection_strategy)
     assert(expected_version == result_version)
@@ -194,7 +203,7 @@ def test_run_solc():
 
 
 @pytest.mark.parametrize("sys_argv, expected_bin_file",[
-    (["solc", "resources/caret_0.4.sol", "--bin", "-o", "test_bin", "-U", "0.4.25"],
+    (["solc", "resources/caret_0.4.sol", "--bin", "-o", "test_bin", "-U", "0.4.25", "-uinfo"],
      "resources/caret_0.4.25.bin"),
     (["solc", "resources/caret_0.5.sol", "--bin", "-o", "test_bin", "-U", "0.5.0"],
      "resources/caret_0.4.25.bin"),
