@@ -37,8 +37,8 @@ When it is properly installed or invoked by Docker, simply call solc in the shel
 An additional parameter `-U [userRule]` is added to the usolc program. User can also enforce rules on the versions they wanted to use. The version is now chosen with the following flow:
 
 1. usolc has a list of Available versions
-2. The list is filtered with the solidity pragma version statement
-3. If specified, then the list is further filtered with the user specified rules
+2. If there is a solidity file in the argument, then the list is filtered with the pragma version statement
+3. If user have specified additional rules, then the list is further filtered with the rules
 4. Choose the newest version available in the resulting list
 
 `userRule` is in the format of `[version filter](+-)`
@@ -58,6 +58,34 @@ Here are some examples:
 | `solc ....... -U +`        |      use newest compiler available  |
 | `solc ....... -U -`        |      use oldest compiler available  | 
 | `solc ....... -U ">0.4.2 <0.6.0+"`|use newest compiler available that satisfies `>0.4.2 <0.6.0` | 
+
+Note that if solidity file is not provided in the argument, then it will only filter by the user's rules. 
+Therefore the version selected may not be the same as the version queried by `solc --version`. 
+e.g. `solc --version` will by default will select the newest version and thus may show `0.5.2`, 
+but the solc version selected by the command `solc xxx.sol --version` may be `0.4.25` if the pragma line in `xxx.sol` requires `^0.4.18`
+
+To view additional information when running `usolc`, another flag `-uinfo` is provided. 
+This will show you the versions that are available and the final version that is selected. 
+The difference are shown in the example below:
+
+```
+/app # solc --version
+solc, the solidity compiler commandline interface
+Version: 0.5.3+commit.10d17f24.Linux.g++
+```
+
+```
+/app # solc -uinfo --version
+#################################################
+Available solc versions are: ['0.5.3', '0.5.2', '0.5.1', '0.5.0', '0.4.25', '0.4.24', '0.4.23', '0.4.22', '0.4.21', '0.4.20', '0.4.19', '0.4.18', '0.4.17']
+solc version: 0.5.3
+#################################################
+solc, the solidity compiler commandline interface
+Version: 0.5.3+commit.10d17f24.Linux.g++
+```
+
+
+
 
 ## To install a new version of solc
 
