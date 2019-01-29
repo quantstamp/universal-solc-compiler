@@ -36,6 +36,10 @@ class VersionChoosing(Enum):
     OLDEST = 2
 
 
+pragma_solidity = re.compile(r'pragma\ssolidity\s(.*);', re.IGNORECASE)
+additional_info = False
+
+
 def make_semver_filter(rule_text):
     """
     Construct a filter based on the rule provided
@@ -53,9 +57,6 @@ def semver_filter(version_list, rule_text):
     full_rule_filter = make_semver_filter(rule_text)
     filter_result = filter(full_rule_filter, version_list)
     return filter_result
-
-
-pragma_solidity = re.compile(r'pragma\ssolidity\s(.*);', re.IGNORECASE)
 
 
 def extract_pragma_line(filename):
@@ -102,6 +103,7 @@ def extract_arguments(sargv):
     Iterate through the arguments for the universal compiler, 
     then remove them if they're not needed in the usual solc compiler
     """
+    global additional_info
     argv = sargv[1:]
 
     filename = None
@@ -116,6 +118,8 @@ def extract_arguments(sargv):
         elif non_native is True:
             version_selection_strategy_str = arg
             non_native = False
+        elif arg == "-uinfo":
+            additional_info = True
         else:
             if arg[-4:] == ".sol":
                 filename = arg
@@ -235,8 +239,9 @@ def read_version_list(version_list_filename):
 
 
 def run_solc(version_chosen, native_argv):
-    print("solc version: " + version_chosen)
-    print("#################################################")
+    if additional_info:
+        print("solc version: " + version_chosen)
+        print("#################################################")
 
     return subprocess.run(["/usr/local/bin/solc-versions/solc-"+version_chosen] + native_argv)
 
@@ -244,11 +249,13 @@ def run_solc(version_chosen, native_argv):
 def main():
     valid_versions = read_version_list("/usr/local/bin/solc-versions/solc_version_list")
 
-    print("#################################################")
-    print("Available solc versions are: " + str(valid_versions))
-
     try:
         [filename, version_selection_strategy, native_argv] = extract_arguments(sys.argv)
+
+        if additional_info:
+            print("#################################################")
+            print("Available solc versions are: " + str(valid_versions))
+
         version_chosen = choose_version_by_argument(valid_versions, filename,
                                                     version_selection_strategy)
         run_solc(version_chosen, native_argv)
