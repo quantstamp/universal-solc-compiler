@@ -7,4 +7,4 @@
 # Demonstration License Terms at <https://s3.amazonaws.com/qsp-protocol-license/LICENSE.txt>.      #
 #                                                                                                  #
 ####################################################################################################
-python /usr/local/bin/solc-versions/usolc.py "$@"
+python3 /usr/local/bin/solc-versions/usolc.py "$@"
