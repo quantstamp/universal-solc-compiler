@@ -10,7 +10,6 @@
 build:
 	docker build -t usolc-node .
 
-
 run: build
 	docker run -it \
        -v /var/run/docker.sock:/var/run/docker.sock \
@@ -27,3 +26,12 @@ test-ci:
 clean:
 	find . | egrep "^.*/(__pycache__|.*\.pyc|tests/coverage/htmlcov|tests/coverage/.coverage|app.tar)$$" | xargs rm -rf
 	docker rmi --force usolc-node:latest
+
+
+build-mythril:
+	docker build -t usolc-mythril-node -f Dockerfile_mythril .
+
+run-mythril: build-mythril
+	docker run -it \
+        -v /tmp:/tmp \
+        usolc-mythril-node sh
