@@ -208,6 +208,7 @@ def choose_version_by_argument(available_versions, filename, version_selection_s
         (2) filtering it through the user specification
         (3) Choose a version according to the user's preference
     """
+    global filename_not_found_in_argument
     if filename_not_found_in_argument:
         filtered_by_sol_compiler_list = available_versions
     else:
