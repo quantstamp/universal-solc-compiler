@@ -42,6 +42,7 @@ RUN ./usolc/solc_download
 # Copying usolc scripts
 RUN cp ./usolc/usolc.py /usr/local/bin/solc-versions/usolc.py
 RUN cp -r ./usolc/exceptions /usr/local/bin/solc-versions/exceptions
+RUN cp ./usolc/solc_version_list /usr/local/bin/solc-versions/solc_version_list
 RUN cp ./usolc/solc /usr/local/bin/solc
 RUN chmod +x /usr/local/bin/solc
 

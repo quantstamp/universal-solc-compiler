@@ -28,7 +28,7 @@ def test_semver_filter(sample_version_list, rule_text, expected_result):
 
 @pytest.mark.parametrize("filename,expected_line",[
     ("exactly_one.sol","pragma solidity 0.4.18;\n"),
-    ("caret.sol","pragma solidity ^0.4.18;\n"),
+    ("caret_0.4.sol","pragma solidity ^0.4.18;\n"),
     ("range.sol","pragma solidity >=0.4.22 <0.6.0;\n"),
     ("range_or_one.sol","pragma solidity 0.4.21 || >=0.4.25 <0.6.0;\n"),
 ])
@@ -67,7 +67,7 @@ def test_getrule_from_pragma(pragma, expected_rule):
 
 @pytest.mark.parametrize("filename,expected_rule",[
     ("resources/exactly_one.sol","0.4.18"),
-    ("resources/caret.sol","^0.4.18"),
+    ("resources/caret_0.4.sol","^0.4.18"),
     ("resources/range.sol",">=0.4.22 <0.6.0"),
     ("resources/range_or_one.sol","0.4.21 || >=0.4.25 <0.6.0"),       
 ])
@@ -144,7 +144,7 @@ def test_choose_version_by_strategy(sample_version_list,
 
 @pytest.mark.parametrize("filename, version_selection_strategy, expected_version", [
     ("exactly_one.sol", ["^0.4.1", VersionChoosing.NEWEST], "0.4.18"),
-    ("caret.sol", ["0.4.18", VersionChoosing.NEWEST], "0.4.18"),
+    ("caret_0.4.sol", ["0.4.18", VersionChoosing.NEWEST], "0.4.18"),
     ("range.sol", ["*", VersionChoosing.NEWEST], "0.5.0"),
     ("range_or_one.sol",["*", VersionChoosing.NEWEST], "0.5.0"),
 ])
@@ -176,3 +176,59 @@ def test_choose_version_by_argument_throws_no_version_available_by_user():
     with pytest.raises(NoVersionAvailableByUser):
         choose_version_by_argument(["0.4.18"],
                                    "resources/exactly_one.sol", ["^0.4.19", VersionChoosing.NEWEST])
+
+
+def test_read_version_list():
+    """
+    Test read_version_list to see if it properly reads the versions provided in the file,
+    The versions should not include special characters like \n or \r
+    """
+    extracted_list = read_version_list("usolc/solc_version_list")
+    expected_list = ["0.5.3", "0.5.2", "0.5.1", "0.5.0", "0.4.25", "0.4.24", "0.4.23", "0.4.22",
+                     "0.4.21", "0.4.20", "0.4.19", "0.4.18", "0.4.17"]
+    assert(expected_list == extracted_list)
+
+
+def test_run_solc():
+    """
+    Test run_solc, passing normal arguments to see if it properly runs without failure
+    """
+    version_chosen = "0.4.25"
+    native_argv = ["resources/caret_0.4.sol", "--abi"]
+    process_return = run_solc(version_chosen, native_argv)
+    assert(process_return.returncode == 0)
+
+
+@pytest.mark.parametrize("sys_argv, expected_bin_file",[
+    (["solc", "resources/caret_0.4.sol", "--bin", "-o", "test_bin", "-U", "0.4.25"],
+     "resources/caret_0.4.25.bin"),
+    (["solc", "resources/caret_0.5.sol", "--bin", "-o", "test_bin", "-U", "0.5.0"],
+     "resources/caret_0.4.25.bin"),
+])
+def test_main(sys_argv, expected_bin_file):
+    """
+    Test main and compile a solidity file for 0.4.25 and another for 0.5.0, compare them with
+    the bin file we expected.
+    """
+    sys.argv = sys_argv
+    assert(main() == 0)
+    expected_bin_file = [elem.rstrip('\n') for elem in list(open(expected_bin_file, "r"))]
+    produced_bin_file = list(open("test_bin/Ballot.bin", "r"))
+    assert(expected_bin_file == produced_bin_file)
+
+
+
+@pytest.mark.parametrize("sys_argv",[
+    (["solc", "resources/empty.sol", "--bin", "-o", "test_bin", "-U", "0.4.25"]),
+    (["solc", "--bin", "-o", "test_bin", "-U", "0.5.0"]),
+    (["solc", "some_random_file_should_not_exist.sol", "--bin", "-o", "test_bin", "-U", "0.5.0"]),
+    (["solc", "resources/exactly_0.6.0.sol", "--bin", "-o", "test_bin"]),
+    (["solc", "resources/caret_0.5.sol", "--bin", "-o", "test_bin", "-U", "0.4.25"]),
+])
+def test_main_exception_return_1(sys_argv):
+    """
+    Test if main returns 1 when there is an exception being raised.
+    The test cases is going through all exceptions that is being listed in the main()
+    """
+    sys.argv = sys_argv
+    assert(main() == 1)

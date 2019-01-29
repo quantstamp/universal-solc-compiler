@@ -61,8 +61,6 @@ Here are some examples:
 
 ## To install a new version of solc
 
-To install a new version of solc on the container, one needs to modify the following two hardcoded lists:
+To install a new version of solc on the container, one needs to modify the ardcoded list in `usolc/solc_version_list`.
 
-1. SOLCVERSION in solc_download
-2. valid_versions in usolc.py
-
+Separate each version with a new line.

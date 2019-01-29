@@ -31,6 +31,11 @@ from exceptions.noversion_available_by_sol import NoVersionAvailableBySol
 from exceptions.noversion_available_by_user import NoVersionAvailableByUser
 
 
+class VersionChoosing(Enum):
+    NEWEST = 1
+    OLDEST = 2
+
+
 def make_semver_filter(rule_text):
     """
     Construct a filter based on the rule provided
@@ -125,11 +130,6 @@ def extract_arguments(sargv):
     return [filename, version_selection_strategy, native_argv]
 
 
-class VersionChoosing(Enum):
-    NEWEST = 1
-    OLDEST = 2
-
-
 def interpret_strategy_string(strategy_string):
     """
     Choosing strategy includes a user defined filter 
@@ -199,6 +199,12 @@ def choose_version_by_strategy(target_list, version_selection_strategy):
 
 
 def choose_version_by_argument(available_versions, filename, version_selection_strategy):
+    """
+    Choose a specific version in the list by:
+        (1) filtering it through the solidity requirement
+        (2) filtering it through the user specification
+        (3) Choose a version according to the user's preference
+    """
     sol_rule = getrule_from_file(filename)
     filtered_by_sol_compiler_list = list(semver_filter(available_versions, sol_rule))
     if not filtered_by_sol_compiler_list:
@@ -218,16 +224,25 @@ def choose_version_by_argument(available_versions, filename, version_selection_s
     return version_chosen
 
 
+def read_version_list(version_list_filename):
+    """
+    Opens the file and treat each line as a version available for solc
+    """
+    list_file = open(version_list_filename, "r")
+    list_with_newline = list(list_file)
+    nl_removed_list = [elem.rstrip('\n') for elem in list_with_newline]
+    return list(nl_removed_list)
+
+
 def run_solc(version_chosen, native_argv):
     print("solc version: " + version_chosen)
     print("#################################################")
 
-    subprocess.run(["/usr/local/bin/solc-versions/solc-"+version_chosen] + native_argv)
+    return subprocess.run(["/usr/local/bin/solc-versions/solc-"+version_chosen] + native_argv)
 
 
 def main():
-    valid_versions = ["0.5.3", "0.5.2", "0.5.1", "0.5.0", "0.4.25", "0.4.24", "0.4.23", "0.4.22",
-                      "0.4.21", "0.4.20", "0.4.19", "0.4.18", "0.4.17"]
+    valid_versions = read_version_list("/usr/local/bin/solc-versions/solc_version_list")
 
     print("#################################################")
     print("Available solc versions are: " + str(valid_versions))
@@ -240,14 +255,18 @@ def main():
         return 0
     except PragmaLineNotFoundError:
         print("Cannot find pragma line that specifies version")
+        return 1
     except FilenameNotFoundInArgument:
         print("Failed to detect solidity file in the arguments")
+        return 1
     except FileNotFoundError:
         print("Solidity file not found")
+        return 1
     except NoVersionAvailableBySol as e:
         print("Cannot find solc version that meets the requirement of the solidity file")
         print("Solidity file's requirement: ")
         print(e.sol_rule)
+        return 1
     except NoVersionAvailableByUser as e:
         print("Cannot find solc version that meets both the requirement of "
               "the solidity file and the user requirement")
@@ -255,7 +274,6 @@ def main():
         print(e.sol_rule)
         print("User's requirement: ")
         print(e.user_rule)
-    finally:
         return 1
 
 

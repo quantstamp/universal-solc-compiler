@@ -1,8 +1,19 @@
 #!/bin/bash
-SOLCVERSION=( \
-    '0.5.3' '0.5.2' '0.5.1' '0.5.0' '0.4.25' '0.4.24' '0.4.23' '0.4.22' '0.4.21' '0.4.20' \
-    '0.4.19' '0.4.18' '0.4.17' \
-)
+####################################################################################################
+#                                                                                                  #
+# (c) 2019 Quantstamp, Inc. All rights reserved.  This content shall not be used, copied,          #
+# modified, redistributed, or otherwise disseminated except to the extent expressly authorized by  #
+# Quantstamp for credentialed users. This content and its use are governed by the Quantstamp       #
+# Demonstration License Terms at <https://s3.amazonaws.com/qsp-protocol-license/LICENSE.txt>.      #
+#                                                                                                  #
+####################################################################################################
+
+SOLCVERSION=()
+
+while read -r line || [[ -n "$line" ]]; do
+    SOLCVERSION+=("$line")
+done < usolc/solc_version_list
+
 
 for version in "${SOLCVERSION[@]}"
 do
