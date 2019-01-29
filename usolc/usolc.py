@@ -103,7 +103,7 @@ def extract_arguments(sargv):
     Iterate through the arguments for the universal compiler, 
     then remove them if they're not needed in the usual solc compiler
     """
-    global additional_info
+    global additional_info, filename_not_found_in_argument
     argv = sargv[1:]
 
     filename = None
