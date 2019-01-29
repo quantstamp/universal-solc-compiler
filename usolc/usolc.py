@@ -25,7 +25,6 @@ import re
 import subprocess
 import semver
 from enum import Enum
-from exceptions.filename_not_found_in_argument import FilenameNotFoundInArgument
 from exceptions.pragmaline_notfound_error import PragmaLineNotFoundError
 from exceptions.noversion_available_by_sol import NoVersionAvailableBySol
 from exceptions.noversion_available_by_user import NoVersionAvailableByUser
@@ -38,6 +37,7 @@ class VersionChoosing(Enum):
 
 pragma_solidity = re.compile(r'pragma\ssolidity\s(.*);', re.IGNORECASE)
 additional_info = False
+filename_not_found_in_argument = False
 
 
 def make_semver_filter(rule_text):
@@ -126,8 +126,7 @@ def extract_arguments(sargv):
             native_argv.append(arg)
 
     if filename is None:
-        raise FilenameNotFoundInArgument("Didn't find any argument that " 
-                                         "represents a solidity file.")
+        filename_not_found_in_argument = True
 
     version_selection_strategy = interpret_strategy_string(version_selection_strategy_str)
 
@@ -209,12 +208,15 @@ def choose_version_by_argument(available_versions, filename, version_selection_s
         (2) filtering it through the user specification
         (3) Choose a version according to the user's preference
     """
-    sol_rule = getrule_from_file(filename)
-    filtered_by_sol_compiler_list = list(semver_filter(available_versions, sol_rule))
-    if not filtered_by_sol_compiler_list:
-        raise NoVersionAvailableBySol(
-                available_versions, sol_rule,
-                "No solc version that satisfies the requirement of the solidity file")
+    if filename_not_found_in_argument:
+        filtered_by_sol_compiler_list = available_versions
+    else:
+        sol_rule = getrule_from_file(filename)
+        filtered_by_sol_compiler_list = list(semver_filter(available_versions, sol_rule))
+        if not filtered_by_sol_compiler_list:
+            raise NoVersionAvailableBySol(
+                    available_versions, sol_rule,
+                    "No solc version that satisfies the requirement of the solidity file")
 
     user_rule = version_selection_strategy
     version_chosen = choose_version_by_strategy(filtered_by_sol_compiler_list,
@@ -262,9 +264,6 @@ def main():
         return 0
     except PragmaLineNotFoundError:
         print("Cannot find pragma line that specifies version")
-        return 1
-    except FilenameNotFoundInArgument:
-        print("Failed to detect solidity file in the arguments")
         return 1
     except FileNotFoundError:
         print("Solidity file not found")

@@ -96,12 +96,6 @@ def test_extract_arguments(sys_argv, expected_result):
     assert(expected_result == extracted_result)   
 
 
-def test_extract_arguments_throws_filename_not_found_in_argument():
-    """ Test extract_arguments throws FilenameNotFoundInArgument when .sol is not found """
-    with pytest.raises(FilenameNotFoundInArgument):
-        extract_arguments(["solc", "--abi"])
-
-
 @pytest.mark.parametrize("strategy_string, expected_result",[
     ("^0.4.1+", ["^0.4.1", VersionChoosing.NEWEST]),
     (">=0.4.1 <0.4.23", [">=0.4.1 <0.4.23", VersionChoosing.NEWEST]),
@@ -220,7 +214,6 @@ def test_main(sys_argv, expected_bin_file):
 
 @pytest.mark.parametrize("sys_argv",[
     (["solc", "resources/empty.sol", "--bin", "-o", "test_bin", "-U", "0.4.25"]),
-    (["solc", "--bin", "-o", "test_bin", "-U", "0.5.0"]),
     (["solc", "some_random_file_should_not_exist.sol", "--bin", "-o", "test_bin", "-U", "0.5.0"]),
     (["solc", "resources/exactly_0.6.0.sol", "--bin", "-o", "test_bin"]),
     (["solc", "resources/caret_0.5.sol", "--bin", "-o", "test_bin", "-U", "0.4.25"]),
