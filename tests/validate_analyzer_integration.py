@@ -11,6 +11,11 @@
 import subprocess
 import filecmp
 
+"""
+    This is not within the CI because it only checks the difference of uploaded docker images,
+    Here we are comparing the output of mythril-0.4.25 and mythril-usolc-0.5.3
+"""
+
 
 def test_mythril():
     """
