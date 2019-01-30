@@ -35,7 +35,7 @@ class VersionChoosing(Enum):
     OLDEST = 2
 
 
-pragma_solidity = re.compile(r'pragma\ssolidity\s(.*);', re.IGNORECASE)
+PRAGMA_SOLIDITY = re.compile(r'pragma\ssolidity\s(.*);', re.IGNORECASE)
 additional_info = False
 
 
@@ -67,7 +67,7 @@ def extract_pragma_line(filename):
 
     with open(filename, 'r') as file:
         for line in file:
-            if pragma_solidity.match(line) is not None:
+            if PRAGMA_SOLIDITY.match(line) is not None:
                 pragma_line = line
                 break    
     file.close()
@@ -82,7 +82,7 @@ def getrule_from_pragma(line):
     """
     Extract the rule from the version line in solidity file.
     """
-    version_match = pragma_solidity.search(line)
+    version_match = PRAGMA_SOLIDITY.search(line)
     version_rule = version_match.group(1)
 
     return version_rule
@@ -206,6 +206,7 @@ def choose_version_by_argument(available_versions, filename, version_selection_s
     """
     if filename is None:
         filtered_by_sol_compiler_list = available_versions
+        sol_rule = ""
     else:
         sol_rule = getrule_from_file(filename)
         filtered_by_sol_compiler_list = list(semver_filter(available_versions, sol_rule))
