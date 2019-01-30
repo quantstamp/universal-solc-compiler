@@ -25,7 +25,6 @@ import re
 import subprocess
 import semver
 from enum import Enum
-from exceptions.filename_not_found_in_argument import FilenameNotFoundInArgument
 from exceptions.pragmaline_notfound_error import PragmaLineNotFoundError
 from exceptions.noversion_available_by_sol import NoVersionAvailableBySol
 from exceptions.noversion_available_by_user import NoVersionAvailableByUser
@@ -34,6 +33,10 @@ from exceptions.noversion_available_by_user import NoVersionAvailableByUser
 class VersionChoosing(Enum):
     NEWEST = 1
     OLDEST = 2
+
+
+pragma_solidity = re.compile(r'pragma\ssolidity\s(.*);', re.IGNORECASE)
+additional_info = False
 
 
 def make_semver_filter(rule_text):
@@ -53,9 +56,6 @@ def semver_filter(version_list, rule_text):
     full_rule_filter = make_semver_filter(rule_text)
     filter_result = filter(full_rule_filter, version_list)
     return filter_result
-
-
-pragma_solidity = re.compile(r'pragma\ssolidity\s(.*);', re.IGNORECASE)
 
 
 def extract_pragma_line(filename):
@@ -102,6 +102,7 @@ def extract_arguments(sargv):
     Iterate through the arguments for the universal compiler, 
     then remove them if they're not needed in the usual solc compiler
     """
+    global additional_info
     argv = sargv[1:]
 
     filename = None
@@ -116,14 +117,12 @@ def extract_arguments(sargv):
         elif non_native is True:
             version_selection_strategy_str = arg
             non_native = False
+        elif arg == "-uinfo":
+            additional_info = True
         else:
             if arg[-4:] == ".sol":
                 filename = arg
             native_argv.append(arg)
-
-    if filename is None:
-        raise FilenameNotFoundInArgument("Didn't find any argument that " 
-                                         "represents a solidity file.")
 
     version_selection_strategy = interpret_strategy_string(version_selection_strategy_str)
 
@@ -205,12 +204,15 @@ def choose_version_by_argument(available_versions, filename, version_selection_s
         (2) filtering it through the user specification
         (3) Choose a version according to the user's preference
     """
-    sol_rule = getrule_from_file(filename)
-    filtered_by_sol_compiler_list = list(semver_filter(available_versions, sol_rule))
-    if not filtered_by_sol_compiler_list:
-        raise NoVersionAvailableBySol(
-                available_versions, sol_rule,
-                "No solc version that satisfies the requirement of the solidity file")
+    if filename is None:
+        filtered_by_sol_compiler_list = available_versions
+    else:
+        sol_rule = getrule_from_file(filename)
+        filtered_by_sol_compiler_list = list(semver_filter(available_versions, sol_rule))
+        if not filtered_by_sol_compiler_list:
+            raise NoVersionAvailableBySol(
+                    available_versions, sol_rule,
+                    "No solc version that satisfies the requirement of the solidity file")
 
     user_rule = version_selection_strategy
     version_chosen = choose_version_by_strategy(filtered_by_sol_compiler_list,
@@ -235,8 +237,9 @@ def read_version_list(version_list_filename):
 
 
 def run_solc(version_chosen, native_argv):
-    print("solc version: " + version_chosen)
-    print("#################################################")
+    if additional_info:
+        print("solc version: " + version_chosen)
+        print("#################################################")
 
     return subprocess.run(["/usr/local/bin/solc-versions/solc-"+version_chosen] + native_argv)
 
@@ -244,20 +247,19 @@ def run_solc(version_chosen, native_argv):
 def main():
     valid_versions = read_version_list("/usr/local/bin/solc-versions/solc_version_list")
 
-    print("#################################################")
-    print("Available solc versions are: " + str(valid_versions))
-
     try:
         [filename, version_selection_strategy, native_argv] = extract_arguments(sys.argv)
+
+        if additional_info:
+            print("#################################################")
+            print("Available solc versions are: " + str(valid_versions))
+
         version_chosen = choose_version_by_argument(valid_versions, filename,
                                                     version_selection_strategy)
         run_solc(version_chosen, native_argv)
         return 0
     except PragmaLineNotFoundError:
         print("Cannot find pragma line that specifies version")
-        return 1
-    except FilenameNotFoundInArgument:
-        print("Failed to detect solidity file in the arguments")
         return 1
     except FileNotFoundError:
         print("Solidity file not found")
