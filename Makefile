@@ -35,3 +35,11 @@ run-mythril: build-mythril
 	docker run -it \
         -v /tmp:/tmp \
         usolc-mythril-node sh
+
+build-securify:
+	docker build -t usolc-securify-node -f Dockerfile_securify .
+
+run-securify: build-securify
+	docker run -it \
+        -v /tmp:/tmp \
+        usolc-securify-node sh
