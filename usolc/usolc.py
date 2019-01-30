@@ -260,23 +260,23 @@ def main():
         run_solc(version_chosen, native_argv)
         return 0
     except PragmaLineNotFoundError:
-        print("Cannot find pragma line that specifies version")
+        print("Cannot find pragma line that specifies version", file=sys.stderr)
         return 1
     except FileNotFoundError:
-        print("Solidity file not found")
+        print("Solidity file not found", file=sys.stderr)
         return 1
     except NoVersionAvailableBySol as e:
-        print("Cannot find solc version that meets the requirement of the solidity file")
-        print("Solidity file's requirement: ")
-        print(e.sol_rule)
+        print("Cannot find solc version that meets the requirement of the solidity file", file=sys.stderr)
+        print("Solidity file's requirement: ", file=sys.stderr)
+        print(e.sol_rule, file=sys.stderr)
         return 1
     except NoVersionAvailableByUser as e:
         print("Cannot find solc version that meets both the requirement of "
-              "the solidity file and the user requirement")
-        print("Solidity file's requirement: ")
-        print(e.sol_rule)
-        print("User's requirement: ")
-        print(e.user_rule)
+              "the solidity file and the user requirement", file=sys.stderr)
+        print("Solidity file's requirement: ", file=sys.stderr)
+        print(e.sol_rule, file=sys.stderr)
+        print("User's requirement: ", file=sys.stderr)
+        print(e.user_rule, file=sys.stderr)
         return 1
 
 
