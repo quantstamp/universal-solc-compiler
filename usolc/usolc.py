@@ -266,8 +266,9 @@ def main():
         print("Solidity file not found", file=sys.stderr)
         return 1
     except NoVersionAvailableBySol as e:
-        print("Cannot find solc version that meets the requirement of the solidity file", file=sys.stderr)
+        print("Error: Source file requires different compiler version", file=sys.stderr)
         print("Solidity file's requirement: ", file=sys.stderr)
+        print("Available solc versions are: " + str(valid_versions), file=sys.stderr)
         print(e.sol_rule, file=sys.stderr)
         return 1
     except NoVersionAvailableByUser as e:
