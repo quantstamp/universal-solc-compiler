@@ -40,3 +40,28 @@ def test_mythril():
         assert(filecmp.cmp("/tmp/sol_test/compare_original", "/tmp/sol_test/compare_usolc") is True)
 
 
+"""
+docker run --rm -v /tmp:/tmp -i qspprotocol/securify-0.4.25 -fs /tmp/sol_test/DAOBug.sol -o /tmp/sol_test/compare_original
+docker run --rm -v /tmp:/tmp -i qspprotocol/securify-usolc-0.5.3 -fs /tmp/sol_test/DAOBug.sol -o /tmp/sol_test/compare_usolc
+"""
+
+
+def test_securify():
+    """
+    Test if the outputs of securify-0.4.25 and securify-usolc-0.5.3 are the same.
+    """
+    contracts = ["DAOBug", "DAOBugOld-Caret", "kyber"]
+
+    for contract in contracts:
+        subprocess.run(["rm", "-rf", "/tmp/sol_test/compare_original"])
+        subprocess.run(["rm", "-rf", "/tmp/sol_test/compare_usolc"])
+
+        subprocess.run(["docker run --rm -v /tmp:/tmp -i qspprotocol/securify-0.4.25 -fs "
+                       "/tmp/sol_test/" + contract + ".sol -o /tmp/sol_test/compare_original"],
+                       shell=True)
+
+        subprocess.run(["docker run --rm -v /tmp:/tmp -i qspprotocol/securify-usolc-0.5.3 -fs "
+                       "/tmp/sol_test/" + contract + ".sol -o /tmp/sol_test/compare_usolc"],
+                       shell=True)
+
+        assert(filecmp.cmp("/tmp/sol_test/compare_original", "/tmp/sol_test/compare_usolc") is True)
