@@ -26,6 +26,8 @@ test-ci:
 clean:
 	find . | egrep "^.*/(__pycache__|.*\.pyc|tests/coverage/htmlcov|tests/coverage/.coverage|app.tar)$$" | xargs rm -rf
 	docker rmi --force usolc-node:latest
+	docker rmi --force usolc-mythril-node:latest
+	docker rmi --force usolc-securify-node:latest
 
 
 build-mythril:
