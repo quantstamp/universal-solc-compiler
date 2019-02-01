@@ -92,8 +92,12 @@ def getrule_from_file(filename):
     """
     Extract the versioning rule from the solidity file
     """
-    pragma_line = extract_pragma_line(filename)
-    semver_rule = getrule_from_pragma(pragma_line)
+    try:
+        pragma_line = extract_pragma_line(filename)
+        semver_rule = getrule_from_pragma(pragma_line)
+    except PragmaLineNotFoundError:
+        semver_rule = "*"
+
     return semver_rule
 
 
@@ -259,9 +263,6 @@ def main():
                                                     version_selection_strategy)
         completed_process = run_solc(version_chosen, native_argv)
         return completed_process.returncode
-    except PragmaLineNotFoundError:
-        print("Cannot find pragma line that specifies version", file=sys.stderr)
-        return 1
     except FileNotFoundError:
         print("Solidity file not found", file=sys.stderr)
         return 1
