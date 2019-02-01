@@ -257,8 +257,8 @@ def main():
 
         version_chosen = choose_version_by_argument(valid_versions, filename,
                                                     version_selection_strategy)
-        run_solc(version_chosen, native_argv)
-        return 0
+        completed_process = run_solc(version_chosen, native_argv)
+        return completed_process.returncode
     except PragmaLineNotFoundError:
         print("Cannot find pragma line that specifies version", file=sys.stderr)
         return 1
