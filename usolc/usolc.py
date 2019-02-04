@@ -35,7 +35,7 @@ class VersionChoosing(Enum):
     OLDEST = 2
 
 
-pragma_solidity = re.compile(r'pragma\ssolidity\s(.*);', re.IGNORECASE)
+PRAGMA_SOLIDITY = re.compile(r'pragma\ssolidity\s(.*);', re.IGNORECASE)
 additional_info = False
 
 
@@ -67,7 +67,7 @@ def extract_pragma_line(filename):
 
     with open(filename, 'r') as file:
         for line in file:
-            if pragma_solidity.match(line) is not None:
+            if PRAGMA_SOLIDITY.match(line) is not None:
                 pragma_line = line
                 break    
     file.close()
@@ -82,7 +82,7 @@ def getrule_from_pragma(line):
     """
     Extract the rule from the version line in solidity file.
     """
-    version_match = pragma_solidity.search(line)
+    version_match = PRAGMA_SOLIDITY.search(line)
     version_rule = version_match.group(1)
 
     return version_rule
@@ -92,8 +92,12 @@ def getrule_from_file(filename):
     """
     Extract the versioning rule from the solidity file
     """
-    pragma_line = extract_pragma_line(filename)
-    semver_rule = getrule_from_pragma(pragma_line)
+    try:
+        pragma_line = extract_pragma_line(filename)
+        semver_rule = getrule_from_pragma(pragma_line)
+    except PragmaLineNotFoundError:
+        semver_rule = "*"
+
     return semver_rule
 
 
@@ -206,6 +210,7 @@ def choose_version_by_argument(available_versions, filename, version_selection_s
     """
     if filename is None:
         filtered_by_sol_compiler_list = available_versions
+        sol_rule = ""
     else:
         sol_rule = getrule_from_file(filename)
         filtered_by_sol_compiler_list = list(semver_filter(available_versions, sol_rule))
@@ -256,26 +261,24 @@ def main():
 
         version_chosen = choose_version_by_argument(valid_versions, filename,
                                                     version_selection_strategy)
-        run_solc(version_chosen, native_argv)
-        return 0
-    except PragmaLineNotFoundError:
-        print("Cannot find pragma line that specifies version")
-        return 1
+        completed_process = run_solc(version_chosen, native_argv)
+        return completed_process.returncode
     except FileNotFoundError:
-        print("Solidity file not found")
+        print("Solidity file not found", file=sys.stderr)
         return 1
     except NoVersionAvailableBySol as e:
-        print("Cannot find solc version that meets the requirement of the solidity file")
-        print("Solidity file's requirement: ")
-        print(e.sol_rule)
+        print("Error: Source file requires different compiler version", file=sys.stderr)
+        print("Solidity file's requirement: ", file=sys.stderr)
+        print("Available solc versions are: " + str(valid_versions), file=sys.stderr)
+        print(e.sol_rule, file=sys.stderr)
         return 1
     except NoVersionAvailableByUser as e:
         print("Cannot find solc version that meets both the requirement of "
-              "the solidity file and the user requirement")
-        print("Solidity file's requirement: ")
-        print(e.sol_rule)
-        print("User's requirement: ")
-        print(e.user_rule)
+              "the solidity file and the user requirement", file=sys.stderr)
+        print("Solidity file's requirement: ", file=sys.stderr)
+        print(e.sol_rule, file=sys.stderr)
+        print("User's requirement: ", file=sys.stderr)
+        print(e.user_rule, file=sys.stderr)
         return 1
 
 
