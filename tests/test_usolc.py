@@ -79,8 +79,8 @@ def test_getrule_from_file(filename, expected_rule):
 
 
 @pytest.mark.parametrize("sys_argv, expected_result", [
-    (["solc", "hello.sol", "-U", "0.4.2+", "--abi", "hello", "-uinfo"],
-     ["hello.sol", ["0.4.2", VersionChoosing.NEWEST], ["hello.sol", "--abi", "hello"]]),
+    (["solc", "hello.sol", "-U", "0.4.2+", "--abi", "extrarandom", "-uinfo"],
+     ["hello.sol", ["0.4.2", VersionChoosing.NEWEST], ["hello.sol", "--abi", "extrarandom"]]),
 
     (["solc", "hello.sol", "-U", "0.4.2+", "--abi"],
      ["hello.sol", ["0.4.2", VersionChoosing.NEWEST], ["hello.sol", "--abi"]]),
@@ -90,6 +90,28 @@ def test_getrule_from_file(filename, expected_rule):
 
     (["solc", "hello.sol"],
      ["hello.sol", ["*", VersionChoosing.NEWEST], ["hello.sol"]]),
+
+    (["solc", "this_is_solfile_without_sol_end"],
+     ["this_is_solfile_without_sol_end", ["*", VersionChoosing.NEWEST], ["this_is_solfile_without_sol_end"]]),
+
+    (["solc", "first_sol", "second_sol"],
+     ["first_sol", ["*", VersionChoosing.NEWEST], ["first_sol", "second_sol"]]),
+
+    (["solc", "path=declaration", "this_is_solfile_without_sol_end", "--abi"],
+     ["this_is_solfile_without_sol_end", ["*", VersionChoosing.NEWEST],
+      ["path=declaration", "this_is_solfile_without_sol_end", "--abi"]]),
+
+    (["solc", "path=declaration", "this_is_solfile_without_sol_end_1", "--combined-json=asm,abi",
+      "this_is_solfile_without_sol_end_2", "--abi"],
+     ["this_is_solfile_without_sol_end_1", ["*", VersionChoosing.NEWEST],
+      ["path=declaration", "this_is_solfile_without_sol_end_1", "--combined-json=asm,abi",
+       "this_is_solfile_without_sol_end_2", "--abi"]]),
+
+    (["solc", "path=declaration", "this_is_solfile_without_sol_end_1", "--combined-json", "asm,abi",
+      "this_is_solfile_without_sol_end_2", "--abi"],
+     ["this_is_solfile_without_sol_end_1", ["*", VersionChoosing.NEWEST],
+      ["path=declaration", "this_is_solfile_without_sol_end_1", "--combined-json", "asm,abi",
+       "this_is_solfile_without_sol_end_2", "--abi"]]),
 
     (["solc", "--version"],
      [None, ["*", VersionChoosing.NEWEST], ["--version"]]),

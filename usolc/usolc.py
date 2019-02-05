@@ -36,7 +36,19 @@ class VersionChoosing(Enum):
 
 
 PRAGMA_SOLIDITY = re.compile(r'pragma\ssolidity\s(.*);', re.IGNORECASE)
+PREFIX_FILELOC = re.compile(r'(.*)=(.*)', re.IGNORECASE)
 additional_info = False
+
+SOLC_ARGUMENTS_WITH_OPTIONS = [
+    "--evm-version",
+    "--optimize-runs",
+    "--libraries",
+    "-o",
+    "--output-dir",
+    "--combined-json",
+    "--machine",
+    "--allow-paths"
+]
 
 
 def make_semver_filter(rule_text):
@@ -109,24 +121,40 @@ def extract_arguments(sargv):
     global additional_info
     argv = sargv[1:]
 
+    file_listed = []
     filename = None
     version_selection_strategy_str = None
     native_argv = []
 
-    non_native = False
+    non_native_option_expected = False
+    expecting_native_option = False
 
     for arg in argv:
+
         if arg == "-U":
-            non_native = True
-        elif non_native is True:
+            non_native_option_expected = True
+        elif non_native_option_expected is True:
             version_selection_strategy_str = arg
-            non_native = False
+            non_native_option_expected = False
         elif arg == "-uinfo":
             additional_info = True
-        else:
-            if arg[-4:] == ".sol":
-                filename = arg
+        elif expecting_native_option:
+            expecting_native_option = False
             native_argv.append(arg)
+        elif arg in SOLC_ARGUMENTS_WITH_OPTIONS:
+            expecting_native_option = True
+            native_argv.append(arg)
+        elif arg[0] == "-" or PREFIX_FILELOC.match(arg) is not None:
+            native_argv.append(arg)
+        else:
+            file_listed.append(arg)
+            native_argv.append(arg)
+
+    # For the time being, set the filename that usolc determines from the first solidity file
+    if not file_listed:
+        filename = None
+    else:
+        filename = file_listed[0]
 
     version_selection_strategy = interpret_strategy_string(version_selection_strategy_str)
 
