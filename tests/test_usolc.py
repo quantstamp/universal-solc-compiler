@@ -230,6 +230,8 @@ def test_run_solc():
      "resources/caret_0.4.25.bin"),
     (["solc", "resources/caret_0.5.sol", "--bin", "-o", "test_bin_2", "-U", "0.5.0"],
      "resources/caret_0.5.0.bin"),
+    (["solc", "resources/caret_0.5", "--bin", "-o", "test_bin_3", "-U", "0.5.3", "-uinfo"],
+     "resources/caret_0.5_nosol.bin"),
 ])
 def test_main(sys_argv, expected_bin_file):
     """
