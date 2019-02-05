@@ -38,7 +38,7 @@ run-mythril: build-mythril
         -v /tmp:/tmp \
         usolc-mythril-node sh
 
-push-mythril: build-mythril
+push-mythril: 
 	docker tag usolc-mythril-node qspprotocol/mythril-usolc-0.5.3:latest
 	docker push qspprotocol/mythril-usolc-0.5.3:latest
 
@@ -50,7 +50,7 @@ run-securify: build-securify
         -v /tmp:/tmp \
         usolc-securify-node sh
 
-push-securify: build-securify
+push-securify:
 	docker tag usolc-securify-node qspprotocol/securify-usolc-0.5.3:latest
 	docker push qspprotocol/securify-usolc-0.5.3:latest
 
