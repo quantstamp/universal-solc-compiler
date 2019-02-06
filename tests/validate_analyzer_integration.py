@@ -10,58 +10,77 @@
 
 import subprocess
 import filecmp
+import pytest
 
 """
     This is not within the CI because it only checks the difference of uploaded docker images,
     Here we are comparing the output of mythril-0.4.25 and mythril-usolc-0.5.3
+    
+    to run the test, use the command below:
+        `python -m pytest tests/validate_analyzer_integration.py` 
 """
 
 
-def test_mythril():
+@pytest.mark.parametrize("contract",[
+    "DAOBug.sol",
+    "DAOBug",
+    "DAOBugOld-Caret.sol",
+    "somefileThatDoesnotexist",
+    "kyber",
+    "Empty.sol",
+])
+def test_mythril(contract):
     """
     Test if the outputs of mythril-0.4.25 and mythril-usolc-0.5.3 are the same.
     """
 
-    # Empty.sol will fail for mythril-0.4.25, seems like solc 0.4.25 couldn't handle empty file
-    contracts = ["DAOBug", "DAOBugOld-Caret", "kyber"]
+    subprocess.run(["rm", "-rf", "/tmp/sol_test/compare_original"])
+    subprocess.run(["rm", "-rf", "/tmp/sol_test/compare_usolc"])
 
-    for contract in contracts:
-        subprocess.run(["rm", "-rf", "/tmp/sol_test/compare_original"])
-        subprocess.run(["rm", "-rf", "/tmp/sol_test/compare_usolc"])
+    subprocess.run(["docker run --rm -v /tmp:/tmp -i qspprotocol/mythril-0.4.25 -o json -x "
+                    "/tmp/sol_test/" + contract + " > /tmp/sol_test/compare_original"],
+                   shell=True)
 
-        subprocess.run(["docker run --rm -v /tmp:/tmp -i qspprotocol/mythril-0.4.25 -o json -x "
-                       "/tmp/sol_test/" + contract + ".sol > /tmp/sol_test/compare_original"],
-                       shell=True)
+    subprocess.run(["docker run --rm -v /tmp:/tmp -i qspprotocol/mythril-usolc-0.5.3"
+                    " -o json -x "
+                    "/tmp/sol_test/" + contract + " > /tmp/sol_test/compare_usolc"],
+                   shell=True)
 
-        subprocess.run(["docker run --rm -v /tmp:/tmp -i qspprotocol/mythril-usolc-0.5.3 -o json -x "
-                       "/tmp/sol_test/" + contract + ".sol > /tmp/sol_test/compare_usolc"],
-                       shell=True)
+    if not filecmp.cmp("/tmp/sol_test/compare_original", "/tmp/sol_test/compare_usolc"):
+        original_report = open("/tmp/sol_test/compare_original", "r")
+        new_report = open("/tmp/sol_test/compare_usolc", "r")
 
-        assert(filecmp.cmp("/tmp/sol_test/compare_original", "/tmp/sol_test/compare_usolc") is True)
+        for line in original_report:
+            print(line)
+
+        for line in new_report:
+            print(line)
+
+    assert(filecmp.cmp("/tmp/sol_test/compare_original", "/tmp/sol_test/compare_usolc") is True)
 
 
-"""
-docker run --rm -v /tmp:/tmp -i qspprotocol/securify-0.4.25 -fs /tmp/sol_test/DAOBug.sol -o /tmp/sol_test/compare_original
-docker run --rm -v /tmp:/tmp -i qspprotocol/securify-usolc-0.5.3 -fs /tmp/sol_test/DAOBug.sol -o /tmp/sol_test/compare_usolc
-"""
-
-
-def test_securify():
+@pytest.mark.parametrize("contract",[
+    "DAOBug.sol",
+    "DAOBug",
+    "DAOBugOld-Caret.sol",
+    "somefileThatDoesnotexist",
+    "kyber"
+    "Empty.sol",
+])
+def test_securify(contract):
     """
     Test if the outputs of securify-0.4.25 and securify-usolc-0.5.3 are the same.
     """
-    contracts = ["DAOBug", "DAOBugOld-Caret", "kyber"]
 
-    for contract in contracts:
-        subprocess.run(["rm", "-rf", "/tmp/sol_test/compare_original"])
-        subprocess.run(["rm", "-rf", "/tmp/sol_test/compare_usolc"])
+    subprocess.run(["rm", "-rf", "/tmp/sol_test/compare_original"])
+    subprocess.run(["rm", "-rf", "/tmp/sol_test/compare_usolc"])
 
-        subprocess.run(["docker run --rm -v /tmp:/tmp -i qspprotocol/securify-0.4.25 -fs "
-                       "/tmp/sol_test/" + contract + ".sol -o /tmp/sol_test/compare_original"],
-                       shell=True)
+    subprocess.run(["docker run --rm -v /tmp:/tmp -i qspprotocol/securify-0.4.25 -fs "
+                    "/tmp/sol_test/" + contract + " > /tmp/sol_test/compare_original"],
+                    shell=True)
 
-        subprocess.run(["docker run --rm -v /tmp:/tmp -i qspprotocol/securify-usolc-0.5.3 -fs "
-                       "/tmp/sol_test/" + contract + ".sol -o /tmp/sol_test/compare_usolc"],
-                       shell=True)
+    subprocess.run(["docker run --rm -v /tmp:/tmp -i qspprotocol/securify-usolc-0.5.3 -fs "
+                    "/tmp/sol_test/" + contract + " > /tmp/sol_test/compare_usolc"],
+                    shell=True)
 
-        assert(filecmp.cmp("/tmp/sol_test/compare_original", "/tmp/sol_test/compare_usolc") is True)
+    assert(filecmp.cmp("/tmp/sol_test/compare_original", "/tmp/sol_test/compare_usolc") is True)
