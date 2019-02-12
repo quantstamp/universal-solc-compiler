@@ -3,6 +3,8 @@
 
 # Universal Solc Compiler
 
+Universal Solc Compiler (usolc) is a set of scripts that can be used exactly as the original solc compiler with the additional feature of reading the pragma line in the solidity file and summons the solc version that can compile the file.
+
 ## Components
 This tool mainly consists of 3 parts:
 
@@ -13,12 +15,18 @@ This tool mainly consists of 3 parts:
 ## Install
 
 ### Using Docker
+
+Prerequisite: [Docker](https://www.docker.com/)
+
 do `make build` to build the docker image, then do `make run` to invoke the shell. The docker script will copy all the files in the same directory, therefore you could put the Solidity files you wanted to test in the same directory of the docker script.
 1. Copy the files to the same directory as the Docker script.
 2. do `make build`
 3. do `make run` to invoke shell, see the `Usage` section on how to run usolc
 
 ### On local machine (Unix)
+
+Prerequisite: Python3 & pip3
+
 1. Install the requirements (`node-semver 0.6.1`)
     1. `pip3 install -U 'node-semver==0.6.1' `
 2. Create solc-versions directory: `mkdir /usr/local/bin/solc-versions`
@@ -28,7 +36,25 @@ do `make build` to build the docker image, then do `make run` to invoke the shel
     2. `cp -r ./usolc/exceptions /usr/local/bin/solc-versions/exceptions`
     3. `cp ./usolc/solc /usr/local/bin/solc`
 
-    
+### On local machine (Mac)
+
+Prerequisite: [Docker](https://www.docker.com/)
+
+Unfortunately, usolc currently doesn't support macOS directly due to: 
+1. There is [no official solidity binaries for macOS](https://github.com/ethereum/solidity/issues/3168).
+According to the issue, Ethereum developers currently have no capacities to support macOS according to a discussion related to the issue. 
+1. There are errors when compiling from source code [after 0.4.x](https://github.com/ethereum/solidity/issues/5414).
+The issue is fixed after 0.5.0, but there are no plan from the Ethereum developers of releasing fix for 0.4.x.
+1. Homebrew installation is corrupted for 0.4.25, Ethereum has [an ongoing issue](https://github.com/ethereum/solidity/issues/5452) 
+that is trying to solve this problem.
+
+For now, the workaround is using a docker image with entry point pointint to the usolc and mounts the current directory.
+Therefore there are some limitations: it can only compile the files that are under the current working directory.
+
+Installation step:
+1. Remove solc in `/usr/local/bin` if it existed.
+1. run shell script ./install_usolc_docker.sh
+
 ## Usage
 When it is properly installed or invoked by Docker, simply call solc in the shell and it will invoke the usolc program.
 
@@ -83,8 +109,6 @@ solc version: 0.5.3
 solc, the solidity compiler commandline interface
 Version: 0.5.3+commit.10d17f24.Linux.g++
 ```
-
-
 
 
 ## To install a new version of solc

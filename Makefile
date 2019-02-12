@@ -29,6 +29,8 @@ clean:
 	docker rmi --force usolc-mythril-node:latest
 	docker rmi --force usolc-securify-node:latest
 
+build-entry:
+	docker build -t usolc-node-entry -f Dockerfile_withEntry .
 
 build-mythril:
 	docker build -t usolc-mythril-node -f Dockerfile_mythril .

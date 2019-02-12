@@ -7,9 +7,5 @@
 # Demonstration License Terms at <https://s3.amazonaws.com/qsp-protocol-license/LICENSE.txt>.      #
 #                                                                                                  #
 ####################################################################################################
-docker build -t usolc-node .
 
-docker run -it \
-       -v /var/run/docker.sock:/var/run/docker.sock \
-       -v /tmp:/tmp \
-usolc-node sh
+docker run -it -v $(pwd):/hostDir usolc-node-entry "$@"
