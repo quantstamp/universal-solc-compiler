@@ -1,4 +1,4 @@
-[![Coverage Status](https://coveralls.io/repos/github/quantstamp/universal-solc-compiler/badge.svg?branch=HEAD&t=ZsRMQa)](https://coveralls.io/github/quantstamp/universal-solc-compiler?branch=HEAD)
+[![Coverage Status](https://coveralls.io/repos/github/quantstamp/universal-solc-compiler/badge.svg?branch=HEAD&t=ZsRMQa&service=github)](https://coveralls.io/github/quantstamp/universal-solc-compiler?branch=HEAD)
 ![AWS Codebuild](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiRnFkajBtLzI2Y21qQ1VkZW0xdWFBMFRFcS9aVXhEZ081U0p0TStjcFRhTUtkeW44am5VT1RaU1RvTm9SZGFRWmtnUnpoblNkWDh2ME5nSFNCenZIaitnPSIsIml2UGFyYW1ldGVyU3BlYyI6Im44cmkrLzhVQWxqNzhqeEEiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
 
 # Universal Solc Compiler
