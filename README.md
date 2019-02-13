@@ -4,6 +4,7 @@
 # Universal Solc Compiler
 
 Universal Solc Compiler (usolc) is a set of scripts that can be used exactly as the original solc compiler with the additional feature of reading the pragma line in the solidity file and summons the solc version that can compile the file.
+The current version of usolc supports 0.4.11 ~ 0.5.3.
 
 ## Components
 This tool mainly consists of 3 parts:
