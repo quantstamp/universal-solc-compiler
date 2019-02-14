@@ -111,6 +111,36 @@ solc, the solidity compiler commandline interface
 Version: 0.5.3+commit.10d17f24.Linux.g++
 ```
 
+## The source of solc binaries
+
+* For solc versions above 0.4.10, the Ethereum Foundation has provided official linux binaries. 
+* For solc versions 0.4.0 ~ 0.4.9, the binaries are compiled on the Alpine docker image from source and are uploaded to this repository.  
+
+If you have doubts in the provided binaries for 0.4.0 ~ 0.4.9, we suggest that you compile the binaries directly from Ethereum's repository.
+
+```
+git clone --recursive https://github.com/ethereum/solidity.git
+cd solidity
+git checkout (hashOfCommit)
+git submodule update --init --recursive
+./scripts/install_deps.sh
+cmake .
+make
+```
+
+The respective hashes of released solc version is presented below for reader's convenience
+```
+0.4.9 : 364da425d3116a4b85863df39a1864340861d71e
+0.4.8 : 60cc1668517f56ce6ca8225555472e7a27eab8b0
+0.4.7 : 822622cf5bf23e79a6e2292cb837d1a39ca1c419
+0.4.6 : 2dabbdf06f414750ef0425c664f861aeb3e470b8
+0.4.5 : b318366e6f16ed6a4274247d09badac4affff8d5
+0.4.4 : 4633f3def897db0f91237f98cf46e5d84fb05e61
+0.4.3 : 2353da71c77dd235b35d16e7e024fa62408df610
+0.4.2 : af6afb0415761b53721f89c7f65064807f41cbd3
+0.4.1 : 4fc6fc2ca59579fae2472df319c2d8d31fe5bde5
+0.4.0 : acd334c9d289a7cc4674dde2534d8728450cedde
+```
 
 ## To install a new version of solc
 
