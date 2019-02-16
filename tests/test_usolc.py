@@ -210,8 +210,10 @@ def test_read_version_list():
     The versions should not include special characters like \n or \r
     """
     extracted_list = read_version_list("usolc/solc_version_list")
-    expected_list = ["0.5.3", "0.5.2", "0.5.1", "0.5.0", "0.4.25", "0.4.24", "0.4.23", "0.4.22",
-                     "0.4.21", "0.4.20", "0.4.19", "0.4.18", "0.4.17"]
+    expected_list = ["0.5.4", "0.5.3", "0.5.2", "0.5.1", "0.5.0", "0.4.25", "0.4.24", "0.4.23",
+                     "0.4.22", "0.4.21", "0.4.20", "0.4.19", "0.4.18", "0.4.17", "0.4.16",
+                     "0.4.15", "0.4.14", "0.4.13", "0.4.12", "0.4.11", "0.4.10", "0.4.9",
+                     "0.4.8", "0.4.7", "0.4.6", "0.4.5"]
     assert(expected_list == extracted_list)
 
 
