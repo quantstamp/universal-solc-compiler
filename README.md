@@ -53,6 +53,7 @@ Therefore there are some limitations: it can only compile the files that are und
 
 Installation step:
 1. Remove solc in `/usr/local/bin` if it existed.
+1. run `make build-entry`
 1. run shell script ./install_usolc_docker.sh
 
 ## Usage
@@ -116,3 +117,20 @@ Version: 0.5.3+commit.10d17f24.Linux.g++
 To install a new version of solc on the container, one needs to modify the ardcoded list in `usolc/solc_version_list`.
 
 Separate each version with a new line.
+
+## Security analyzers with usolc
+
+To demonstrate how usolc could be applied, we have integrated usolc with two other analyzer projects: [Mythril](https://github.com/ConsenSys/mythril-classic/tree/v0.18.6) and [Securify](https://github.com/eth-sri/securify).
+
+Orignally, to analyze contracts that requires different versions of solc (e.g. ^0.4.0 and ^0.5.0), one has to manually switch between different versions of solc or analyzer images. 
+With the usolc integrated into the docker images, 
+one can use them directly to analyze contracts that can be compiled with any solc version supported by the usolc.
+
+1. Build the docker image: `make build-mythril`  or `make build-securify`
+2. Use the image as the official document of Mythril or Securify:
+    * Mythril example: `docker run -v $/tmp:/tmp usolc-mythril-node -x /tmp/contract.sol`
+    * Securify example: `docker run -v $/tmp:/tmp usolc-securify-node -fs /tmp/contract.sol`
+
+
+
+ 
