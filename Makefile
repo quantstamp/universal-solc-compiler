@@ -7,7 +7,7 @@
 #                                                                                                  #
 ####################################################################################################
 
-documents:
+docs:
 	git clone git@github.com:quantstamp/opensource-doc-gen.git
 	markdown-exec ./Contribute.md
 	rm -rf opensource-doc-gen/
