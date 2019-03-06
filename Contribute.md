@@ -1,13 +1,16 @@
 #Contributing
-<!-- markdown-exec(cmd:cat ./opensource-doc-gen/generic_templates/ContribHeader.md) -->We appreciate that you are considering contributing to Quantstamp, 
+
+We appreciate that you are considering contributing to Quantstamp, 
 we value all kinds of contribution from the community, including bug report, fixes, 
 feature request, feature implementation, etc.
 
 Please take a moment to read the guidelines, 
-as it will establish a common ground and facilitate discussion about the project.<!-- /markdown-exec -->
+as it will establish a common ground and facilitate discussion about the project.
+
 
 ## Bug Report
-<!-- markdown-exec(cmd:cat ./opensource-doc-gen/generic_templates/BugReport.md) -->First of all, if you find a security vulnerability or suspect a problem to be security-related, 
+
+First of all, if you find a security vulnerability or suspect a problem to be security-related, 
 please do NOT open an issue and do NOT discuss it in anywhere public. 
 Email {"gitdown": "variable", "name": "generic.security_bug_email"} instead.
 
@@ -28,10 +31,11 @@ To submit an issue, please include the following information in your post:
 4. What did you do?
 5. What did you expect to see?
 6. What did you see instead?
-7. Other information you think would be helpful and related to the issue.<!-- /markdown-exec -->
+7. Other information you think would be helpful and related to the issue.
 
 ## Feature suggestion
-<!-- markdown-exec(cmd:cat ./opensource-doc-gen/generic_templates/FeatureSuggestion.md) -->### Before you make a suggestion:
+
+### Before you make a suggestion:
 1. Check if the latest version already supports the feature.
 2. Search in the issue list to see if this has been suggested before.
 
@@ -42,10 +46,11 @@ We'll track the suggestion using Github issues, to make an effective suggestion:
 * Describe the feature as clear as possible.
 * Provide an example to demonstrate the feature step-by-step.
 * Explain why this feature would be useful to the community 
-* Specify the environment that you're using: which version of the software / what OS / etc.<!-- /markdown-exec -->
+* Specify the environment that you're using: which version of the software / what OS / etc.
 
 ## Pull Request Guideline
-<!-- markdown-exec(cmd:cat ./opensource-doc-gen/generic_templates/PullRequest.md) -->[Guidelines for github contribution](https://www.gun.io/blog/how-to-github-fork-branch-and-pull-request)
+
+[Guidelines for github contribution](https://www.gun.io/blog/how-to-github-fork-branch-and-pull-request)
 To make a pull request:
 1. Ensure that all tests have passed.
 2. Write new tests that cover the new codes.
@@ -54,10 +59,10 @@ To make a pull request:
 
 We will review the pull requests on a regular basis and 
 will give you feedback based on your changes. We expect responses of the feedback within 2 weeks.
-After 2 weeks, we may close the pull request due to inactivity.<!-- /markdown-exec -->
-
+After 2 weeks, we may close the pull request due to inactivity.
 ## Code of Conduct
-<!-- markdown-exec(cmd:cat ./opensource-doc-gen/generic_templates/CodeOfConduct.md) -->Please note we have a code of conduct, please follow it in all your interactions with the project.
+
+Please note we have a code of conduct, please follow it in all your interactions with the project.
 
 ### Our Pledge
 
@@ -130,4 +135,6 @@ This Code of Conduct is adapted from the [Contributor Covenant][homepage], versi
 available at [http://contributor-covenant.org/version/1/4][version]
 
 [homepage]: http://contributor-covenant.org
-[version]: http://contributor-covenant.org/version/1/4/<!-- /markdown-exec -->
+[version]: http://contributor-covenant.org/version/1/4/
+
+

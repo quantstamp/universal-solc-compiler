@@ -8,9 +8,11 @@
 ####################################################################################################
 
 docs:
-	git clone git@github.com:quantstamp/opensource-doc-gen.git
-	markdown-exec ./Contribute.md
-	rm -rf opensource-doc-gen/
+	markdown-pp Contribute.mdTemplate -o ./Contribute.md
+	rm -rf .github
+	mkdir .github
+	wget https://raw.githubusercontent.com/quantstamp/opensource-doc-gen/master/github_template/bug-report.md -O .github/bug-report.md
+	wget https://raw.githubusercontent.com/quantstamp/opensource-doc-gen/master/github_template/pull_request_template.md -O .github/pull_request_template.md
 
 build:
 	docker build -t usolc-node .
