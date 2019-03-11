@@ -9,10 +9,9 @@
 
 docs:
 	markdown-pp Contribute.mdTemplate -o ./Contribute.md
-	rm -rf .github
-	mkdir .github
-	curl https://raw.githubusercontent.com/quantstamp/opensource-doc-gen/master/github_template/bug-report.md -o .github/bug-report.md
-	curl https://raw.githubusercontent.com/quantstamp/opensource-doc-gen/master/github_template/pull_request_template.md -o .github/pull_request_template.md
+	mkdir -r .github
+	curl https://raw.githubusercontent.com/quantstamp/opensource-doc-gen/master/github_template/bug-report.md > .github/bug-report.md
+	curl https://raw.githubusercontent.com/quantstamp/opensource-doc-gen/master/github_template/pull_request_template.md > .github/pull_request_template.md
 
 build:
 	docker build -t usolc-node .
