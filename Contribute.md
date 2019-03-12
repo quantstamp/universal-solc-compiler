@@ -1,4 +1,4 @@
-#Contributing
+# Contributing
 
 We appreciate that you are considering contributing to Quantstamp, 
 we value all kinds of contribution from the community, including bug report, fixes, 
