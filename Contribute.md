@@ -64,3 +64,4 @@ We will review the pull requests when we have availability and
 will give you feedback based on your changes. We expect responses of the feedback within 2 weeks.
 After 2 weeks, we may close the pull request due to inactivity.
 
+Please also read our [Python style guide](https://github.com/quantstamp/opensource-doc-gen/blob/master/style_guide/python.md) to maintain a uniform code style.
