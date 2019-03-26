@@ -12,6 +12,9 @@ It is a transparent wrapper that:
 2. Forwards all the arguments to the required solc version
 3. Returns what solc would return.
 
+The current version of usolc supports 0.4.5 ~ 0.5.4.
+
+
 ## Components
 This tool mainly consists of 3 parts:
 
@@ -116,6 +119,23 @@ solc version: 0.5.3
 #################################################
 solc, the solidity compiler commandline interface
 Version: 0.5.3+commit.10d17f24.Linux.g++
+```
+
+## The source of solc binaries
+
+* For solc versions above 0.4.10, the Ethereum Foundation has provided official linux binaries. 
+* For solc versions 0.4.0 ~ 0.4.9, the binaries are compiled on the Alpine docker image and made static using [this method](https://github.com/rainbreak/solidity-static) from source and are uploaded to this repository.  
+
+If you have doubts in the provided binaries for 0.4.5 ~ 0.4.9, we suggest that you compile the binaries directly from Ethereum's repository.
+
+```
+git clone --recursive https://github.com/ethereum/solidity.git
+cd solidity
+git checkout v0.x.x
+git submodule update --init --recursive
+./scripts/install_deps.sh
+cmake .
+make
 ```
 
 
