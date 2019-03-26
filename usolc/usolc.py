@@ -81,7 +81,7 @@ def extract_pragma_line(filename):
         for line in file:
             if PRAGMA_SOLIDITY.match(line) is not None:
                 pragma_line = line
-                break    
+                break
     file.close()
 
     if pragma_line is None:
@@ -115,7 +115,7 @@ def getrule_from_file(filename):
 
 def extract_arguments(sargv):
     """
-    Iterate through the arguments for the universal compiler, 
+    Iterate through the arguments for the universal compiler,
     then remove them if they're not needed in the usual solc compiler
     """
     global additional_info
@@ -163,14 +163,14 @@ def extract_arguments(sargv):
 
 def interpret_strategy_string(strategy_string):
     """
-    Choosing strategy includes a user defined filter 
+    Choosing strategy includes a user defined filter
     and a preference to select the newest or oldest version possible
 
     This function reads the parameter string and interprets it with the following rule:
 
     [version filter](+-)
 
-    semantic versioning can be used in the [version filter], 
+    semantic versioning can be used in the [version filter],
     + indicates "prefer newest compiler", - indicates "prefer oldest compiler".
 
     if + or - is not indicated, then the default would be "prefer newest compiler"
@@ -214,10 +214,10 @@ def semver_min_satisfying(target_list, target_range):
 
 def choose_version_by_strategy(target_list, version_selection_strategy):
     """
-    Choose a specific version in the list, 
+    Choose a specific version in the list,
     according to version selection strategy specified by the user
     """
-    
+
     [target_range, choosing] = version_selection_strategy
 
     if choosing == VersionChoosing.NEWEST:
@@ -244,17 +244,17 @@ def choose_version_by_argument(available_versions, filename, version_selection_s
         filtered_by_sol_compiler_list = list(semver_filter(available_versions, sol_rule))
         if not filtered_by_sol_compiler_list:
             raise NoVersionAvailableBySol(
-                    available_versions, sol_rule,
-                    "No solc version that satisfies the requirement of the solidity file")
+                available_versions, sol_rule,
+                "No solc version that satisfies the requirement of the solidity file")
 
     user_rule = version_selection_strategy
     version_chosen = choose_version_by_strategy(filtered_by_sol_compiler_list,
                                                 version_selection_strategy)
     if version_chosen is None:
         raise NoVersionAvailableByUser(
-                available_versions, sol_rule, user_rule,
-                "No solc version that satisfies both the requirement of" +
-                " the solidity file and the user's rule")
+            available_versions, sol_rule, user_rule,
+            "No solc version that satisfies both the requirement of"
+            " the solidity file and the user's rule")
 
     return version_chosen
 
@@ -274,7 +274,7 @@ def run_solc(version_chosen, native_argv):
         print("solc version: " + version_chosen)
         print("#################################################")
 
-    return subprocess.run(["/usr/local/bin/solc-versions/solc-"+version_chosen] + native_argv)
+    return subprocess.run(["/usr/local/bin/solc-versions/solc-" + version_chosen] + native_argv)
 
 
 def main():
