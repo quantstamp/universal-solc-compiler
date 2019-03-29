@@ -9,13 +9,13 @@ categories:
     label: chore
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 template: |
-  # Summary  
+  ## Summary  
 
-  # Changes
+  ## Changes
 
   $CHANGES
   
-  # Contributors
+  ## Contributors
   We appreciate all of our contributors that have made this release possible, thank you!
   
   $CONTRIBUTORS
