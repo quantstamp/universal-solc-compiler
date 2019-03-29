@@ -9,6 +9,8 @@ categories:
     label: chore
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 template: |
+  ## Summary  
+
   ## Changes
 
   $CHANGES
