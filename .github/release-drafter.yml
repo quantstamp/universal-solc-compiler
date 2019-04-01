@@ -15,6 +15,7 @@ template: |
 
   $CHANGES
   
-  ### This version is made possible by the following contributors
+  ## Contributors
+  We appreciate all of our contributors that have made this release possible, thank you!
   
   $CONTRIBUTORS
