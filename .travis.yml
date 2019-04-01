@@ -1,0 +1,20 @@
+language: python
+python:
+  - "3.6"
+before_install:
+  - sudo apt-get -y install python3-pip git
+  - pip3 install coveralls==1.5.1
+addons:
+  apt:
+    update: true
+script:
+  - echo Build started on `date`
+  - echo Building the Docker image...          
+  - make build
+  - echo Running ci tests
+  - make test-ci
+after_script:
+  - echo Collecting coverage information
+  - sed -i -e "s@/app/@$PWD/@g" ./tests/coverage/.coverage
+  - cat ./tests/coverage/.coverage
+  - coveralls
