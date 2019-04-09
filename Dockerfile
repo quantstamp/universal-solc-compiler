@@ -20,6 +20,7 @@ RUN apk add --no-cache python3 && \
   rm -r /root/.cache
 
 RUN apk add --no-cache libtool
+RUN apk add vim
 
 # Install solc
 ## Create solc-versions directory
@@ -32,7 +33,7 @@ COPY . .
 
 RUN chmod +x run_tests
 # Install pip requirements for usolc
-RUN pip3 install -r requirements.txt 
+RUN pip3 install -r requirements.txt
 
 # usolc setup
 # Running the solc download
