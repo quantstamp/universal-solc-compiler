@@ -122,7 +122,7 @@ def extract_arguments(sargv):
     Iterate through the arguments for the universal compiler,
     then remove them if they're not needed in the usual solc compiler
     """
-    global flag_additional_info
+    global flag_additional_info, flag_standard_json
     argv = sargv[1:]
 
     file_listed = []
@@ -151,18 +151,18 @@ def extract_arguments(sargv):
         elif arg == "--standard-json":
             # currently ignoring bzzr and ipfs function
             flag_standard_json = True
+            for line in sys.stdin:
+                print line
             jsonData = json.load(sys.stdin)
             native_argv.append(arg)
             for key, value in jsonData["sources"].items():
-                print("key: " + key)
-                if key == "mortal":
-                    print(value["content"])
-                else: # this is file
+#                print("key: " + key)
+#                if key == "mortal":
+#                    print(value["content"])
+#                else: # this is file
+                if key != "mortal":
                     if value["urls"][0][:7] == "file://" :
                         file_listed.append(value["urls"][0][7:])
-
-
-            sys.exit(0)
         elif arg[0] == "-" or PREFIX_FILELOC.match(arg) is not None:
             native_argv.append(arg)
         else:
@@ -289,6 +289,7 @@ def read_version_list(version_list_filename):
 
 
 def run_solc(version_chosen, native_argv):
+    global flag_additional_info, flag_standard_json
     if flag_additional_info:
         print("solc version: " + version_chosen)
         print("#################################################")
