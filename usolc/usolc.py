@@ -24,6 +24,7 @@ import sys
 import re
 import subprocess
 import semver
+import json
 from enum import Enum
 from exceptions.pragmaline_notfound_error import PragmaLineNotFoundError
 from exceptions.noversion_available_by_sol import NoVersionAvailableBySol
@@ -37,7 +38,10 @@ class VersionChoosing(Enum):
 
 PRAGMA_SOLIDITY = re.compile(r'pragma\ssolidity\s(.*);', re.IGNORECASE)
 PREFIX_FILELOC = re.compile(r'(.*)=(.*)', re.IGNORECASE)
-additional_info = False
+flag_additional_info = False
+flag_standard_json = False
+
+jsonData = None
 
 SOLC_ARGUMENTS_WITH_OPTIONS = [
     "--evm-version",
@@ -118,7 +122,7 @@ def extract_arguments(sargv):
     Iterate through the arguments for the universal compiler,
     then remove them if they're not needed in the usual solc compiler
     """
-    global additional_info
+    global flag_additional_info
     argv = sargv[1:]
 
     file_listed = []
@@ -137,13 +141,28 @@ def extract_arguments(sargv):
             version_selection_strategy_str = arg
             non_native_option_expected = False
         elif arg == "-uinfo":
-            additional_info = True
+            flag_additional_info = True
         elif expecting_native_option:
             expecting_native_option = False
             native_argv.append(arg)
         elif arg in SOLC_ARGUMENTS_WITH_OPTIONS:
             expecting_native_option = True
             native_argv.append(arg)
+        elif arg == "--standard-json":
+            # currently ignoring bzzr and ipfs function
+            flag_standard_json = True
+            jsonData = json.load(sys.stdin)
+            native_argv.append(arg)
+            for key, value in jsonData["sources"].items():
+                print("key: " + key)
+                if key == "mortal":
+                    print(value["content"])
+                else: # this is file
+                    if value["urls"][0][:7] == "file://" :
+                        file_listed.append(value["urls"][0][7:])
+
+
+            sys.exit(0)
         elif arg[0] == "-" or PREFIX_FILELOC.match(arg) is not None:
             native_argv.append(arg)
         else:
@@ -270,11 +289,14 @@ def read_version_list(version_list_filename):
 
 
 def run_solc(version_chosen, native_argv):
-    if additional_info:
+    if flag_additional_info:
         print("solc version: " + version_chosen)
         print("#################################################")
 
-    return subprocess.run(["/usr/local/bin/solc-versions/solc-" + version_chosen] + native_argv)
+    if flag_standard_json:
+        return subprocess.run(["/usr/local/bin/solc-versions/solc-" + version_chosen] + native_argv, stdin=sys.stdin)
+    else:
+        return subprocess.run(["/usr/local/bin/solc-versions/solc-" + version_chosen] + native_argv)
 
 
 def main():
@@ -283,7 +305,7 @@ def main():
     try:
         [filename, version_selection_strategy, native_argv] = extract_arguments(sys.argv)
 
-        if additional_info:
+        if flag_additional_info:
             print("#################################################")
             print("Available solc versions are: " + str(valid_versions))
 
