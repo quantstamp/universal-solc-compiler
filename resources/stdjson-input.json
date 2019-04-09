@@ -1,25 +1,16 @@
 {
-  // Required: Source code language, such as "Solidity", "serpent", "lll", "assembly", etc.
-  language: "Solidity",
-  // Required
-  sources:
+  "language": "Solidity",
+  "sources":
   {
-    // The keys here are the "global" names of the source files,
-    // imports can use other files via remappings (see below).
     "myFile.sol":
     {
-      // Required (unless "content" is used, see below): URL(s) to the source file.
-      // URL(s) should be imported in this order and the result checked against the
-      // keccak256 hash (if available). If the hash doesn't match or none of the
-      // URL(s) result in success, an error should be raised.
       "urls":
       [
-        "file:///tmp/path/to/file.sol"
+        "file:///tmp/solc/file.sol"
       ]
     },
     "mortal":
     {
-      // Required (unless "urls" is used): literal contents of the source file
       "content": "contract mortal is owned { function kill() { if (msg.sender == owner) selfdestruct(owner); } }"
     }
   }
