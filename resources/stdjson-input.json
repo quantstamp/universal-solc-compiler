@@ -4,14 +4,7 @@
   {
     "myFile.sol":
     {
-      "urls":
-      [
-        "file:///tmp/solc/file.sol"
-      ]
+       "content": "pragma solidity 0.4.25; contract mortal is owned { function kill() { if (msg.sender == owner) selfdestruct(owner); } }"
     },
-    "mortal":
-    {
-      "content": "contract mortal is owned { function kill() { if (msg.sender == owner) selfdestruct(owner); } }"
-    }
   }
 }
