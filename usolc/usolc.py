@@ -81,7 +81,7 @@ def extract_pragma_line(filename):
     """
     pragma_line = None
 
-    with open(filename, 'r') as file:
+    with open(filename, 'r', encoding='utf-8') as file:
         for line in file:
             if PRAGMA_SOLIDITY.match(line) is not None:
                 pragma_line = line
@@ -151,18 +151,23 @@ def extract_arguments(sargv):
         elif arg == "--standard-json":
             # currently ignoring bzzr and ipfs function
             flag_standard_json = True
-            for line in sys.stdin:
-                print line
-            jsonData = json.load(sys.stdin)
+
+            with open("/tmp/usolc-stdjson-tmp", 'w', encoding='utf-8') as file:
+                for line in sys.stdin:
+                    file.write(line)
+                file.close()
+
+            jsonInput = open("/tmp/usolc-stdjson-tmp", 'r', encoding='utf-8')
+            jsonData = json.load(jsonInput)
+            jsonInput.close()
             native_argv.append(arg)
-            for key, value in jsonData["sources"].items():
-#                print("key: " + key)
-#                if key == "mortal":
-#                    print(value["content"])
-#                else: # this is file
-                if key != "mortal":
-                    if value["urls"][0][:7] == "file://" :
-                        file_listed.append(value["urls"][0][7:])
+
+            for contractFilename, value in jsonData["sources"].items():
+                contractTmp = open("/tmp/usolc-contract-tmp", "w", encoding="utf-8")
+                contractTmp.write(value["content"])
+                contractTmp.close()
+                file_listed.append("/tmp/usolc-contract-tmp")
+
         elif arg[0] == "-" or PREFIX_FILELOC.match(arg) is not None:
             native_argv.append(arg)
         else:
@@ -282,7 +287,7 @@ def read_version_list(version_list_filename):
     """
     Opens the file and treat each line as a version available for solc
     """
-    list_file = open(version_list_filename, "r")
+    list_file = open(version_list_filename, "r", encoding='utf-8')
     list_with_newline = list(list_file)
     nl_removed_list = [elem.rstrip('\n') for elem in list_with_newline]
     return list(nl_removed_list)
@@ -295,7 +300,9 @@ def run_solc(version_chosen, native_argv):
         print("#################################################")
 
     if flag_standard_json:
-        return subprocess.run(["/usr/local/bin/solc-versions/solc-" + version_chosen] + native_argv, stdin=sys.stdin)
+        jsonInput = open("/tmp/usolc-stdjson-tmp", 'r', encoding='utf-8')
+        return subprocess.run(["/usr/local/bin/solc-versions/solc-" + version_chosen] + native_argv, stdin=jsonInput)
+        jsonInput.close()
     else:
         return subprocess.run(["/usr/local/bin/solc-versions/solc-" + version_chosen] + native_argv)
 
