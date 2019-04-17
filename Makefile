@@ -10,10 +10,10 @@
 docs:
 	markdown-pp Contribute.mdTemplate -o ./Contribute.md
 	mkdir -p .github
-	markdown-pp bug-report.mdTemplate -o ./.github/bug-report.md
+	mkdir -p .github/ISSUE_TEMPLATE
+	markdown-pp bug-report.mdTemplate -o ./.github/ISSUE_TEMPLATE/bug-report.md
 	markdown-pp pull_request_template.mdTemplate -o ./.github/pull_request_template.md
 	curl https://raw.githubusercontent.com/quantstamp/opensource-doc-gen/master/CodeOfConduct.md > .github/CODE_OF_CONDUCT.md
-
 
 build:
 	docker build -t usolc-node .
