@@ -14,7 +14,7 @@ docs:
 	markdown-pp bug-report.mdTemplate -o ./.github/ISSUE_TEMPLATE/bug-report.md
 	markdown-pp pull_request_template.mdTemplate -o ./.github/pull_request_template.md
 	curl https://raw.githubusercontent.com/quantstamp/opensource-doc-gen/master/CodeOfConduct.md > .github/CODE_OF_CONDUCT.md
-	curl https://raw.githubusercontent.com/quantstamp/opensource-doc-gen/master/github_template/feature_request.md > .github/ISSUE_TEMPLATE/feature_request.md
+	curl https://raw.githubusercontent.com/quantstamp/opensource-doc-gen/master/github_template/feature-request.md > .github/ISSUE_TEMPLATE/feature_request.md
 
 
 build:
