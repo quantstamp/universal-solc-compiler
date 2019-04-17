@@ -61,9 +61,9 @@ push-usolc-entry:
 	docker push qspprotocol/usolc-entry:latest
 
 push-securify:
-	docker tag usolc-securify-node qspprotocol/securify-usolc-0.5.3:latest
-	docker push qspprotocol/securify-usolc-0.5.3:latest
+	docker tag usolc-securify-node qspprotocol/securify-usolc:latest
+	docker push qspprotocol/securify-usolc:latest
 
 push-mythril:
-	docker tag usolc-mythril-node qspprotocol/mythril-usolc-0.5.3:latest
-	docker push qspprotocol/mythril-usolc-0.5.3:latest
+	docker tag usolc-mythril-node qspprotocol/mythril-usolc:latest
+	docker push qspprotocol/mythril-usolc:latest
