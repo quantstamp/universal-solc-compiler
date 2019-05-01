@@ -7,7 +7,6 @@
 #                                                                                                  #
 ####################################################################################################
 
-from io import StringIO
 from usolc.usolc import *
 from solc import compile_standard
 import pytest
