@@ -301,18 +301,19 @@ def run_solc(version_chosen, native_argv):
 
     if flag_standard_json:
         jsonInput = open("/tmp/usolc-stdjson-tmp", 'r', encoding='utf-8')
-        return subprocess.run(["/usr/local/bin/solc-versions/solc-" + version_chosen] + native_argv, stdin=jsonInput)
+        return subprocess.run(["/usr/local/bin/solc-versions/solc-" + version_chosen] + native_argv, stdin=jsonInput, stdout=sys.stdout)
         jsonInput.close()
     else:
         return subprocess.run(["/usr/local/bin/solc-versions/solc-" + version_chosen] + native_argv)
 
 
 def main():
+    global flag_additional_info
     valid_versions = read_version_list("/usr/local/bin/solc-versions/solc_version_list")
 
     try:
+        flag_additional_info = False
         [filename, version_selection_strategy, native_argv] = extract_arguments(sys.argv)
-
         if flag_additional_info:
             print("#################################################")
             print("Available solc versions are: " + str(valid_versions))

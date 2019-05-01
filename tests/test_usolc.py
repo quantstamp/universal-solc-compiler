@@ -7,11 +7,10 @@
 #                                                                                                  #
 ####################################################################################################
 
-
+from io import StringIO
 from usolc.usolc import *
 from solc import compile_standard
 import pytest
-
 
 
 @pytest.fixture
@@ -265,8 +264,45 @@ def test_main_exception_return_1(sys_argv):
 
 def test_solc_compile_standard():
     compile_standard({
-            'language': 'Solidity',
-            'sources': {
-                'flattenedContract.sol': {"content":"pragma solidity ^0.4.24;\n/**\n* @title SafeMath\n*/\nlibrary SafeMath {\nfunction mul(uint256 a, uint256 b) internal pure returns (uint256) {\nif (a == 0) {\nreturn 0;\n}\nuint256 c = a * b;\nassert(c / a == b);\nreturn c;\n}\nfunction div(uint256 a, uint256 b) internal pure returns (uint256) {\n// assert(b > 0); // Solidity automatically throws when dividing by 0\nuint256 c = a / b;\n// assert(a == b * c + a % b); // There is no case in which this doesn't hold\nreturn c;\n}\nfunction sub(uint256 a, uint256 b) internal pure returns (uint256) {\nassert(b <= a);\nreturn a - b;\n}\nfunction add(uint256 a, uint256 b) internal pure returns (uint256) {\nuint256 c = a + b;\nassert(c >= a);\nreturn c;\n}\n}\n/**\n* @title Ownable\n*/\ncontract Ownable {\naddress public owner;\nevent OwnershipTransferred(address indexed previousOwner, address indexed newOwner);\nconstructor() public {\nowner = 0x266E16Ae64C9baC3A175235500Cc2cb1FF61d460;\n}\nmodifier onlyOwner() {\nrequire(msg.sender == owner);\n_;\n}\nfunction transferOwnership(address newOwner) public onlyOwner {\nrequire(newOwner != address(0));\nemit OwnershipTransferred(owner, newOwner);\nowner = newOwner;\n}\n}\n/**\n* @title ERC20Basic\n*/\ncontract ERC20Basic {\nfunction totalSupply() public view returns (uint256);\nfunction balanceOf(address who) public view returns (uint256);\nfunction transfer(address to, uint256 value) public returns (bool);\nevent Transfer(address indexed from, address indexed to, uint256 value);\n}\n/**\n* @title ERC20 interface\n*/\ncontract ERC20 is ERC20Basic {\nfunction allowance(address owner, address spender) public view returns (uint256);\nfunction transferFrom(address from, address to, uint256 value) public returns (bool);\nfunction approve(address spender, uint256 value) public returns (bool);\nevent Approval(address indexed owner, address indexed spender, uint256 value);\n}\n/**\n* @title Basic token\n*/\ncontract BasicToken is ERC20Basic {\nusing SafeMath for uint256;\nmapping(address => uint256) balances;\nuint256 totalSupply_;\nfunction totalSupply() public view returns (uint256) {\nreturn totalSupply_;\n}\nfunction transfer(address _to, uint256 _value) public returns (bool) {\nrequire(_to != address(0));\nrequire(_value <= balances[msg.sender]);\nbalances[msg.sender] = balances[msg.sender].sub(_value);\nbalances[_to] = balances[_to].add(_value);\nemit Transfer(msg.sender, _to, _value);\nreturn true;\n}\nfunction balanceOf(address _owner) public view returns (uint256 balance) {\nreturn balances[_owner];\n}\n}\n/**\n* @title Standard ERC20 token\n*/\ncontract StandardToken is ERC20, BasicToken {\nmapping (address => mapping (address => uint256)) internal allowed;\nfunction transferFrom(address _from, address _to, uint256 _value) public returns (bool) {\nrequire(_to != address(0));\nrequire(_value <= balances[_from]);\nrequire(_value <= allowed[_from][msg.sender]);\nbalances[_from] = balances[_from].sub(_value);\nbalances[_to] = balances[_to].add(_value);\nallowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_value);\nemit Transfer(_from, _to, _value);\nreturn true;\n}\nfunction approve(address _spender, uint256 _value) public returns (bool) {\nallowed[msg.sender][_spender] = _value;\nemit Approval(msg.sender, _spender, _value);\nreturn true;\n}\nfunction allowance(address _owner, address _spender) public view returns (uint256) {\nreturn allowed[_owner][_spender];\n}\nfunction increaseApproval(address _spender, uint _addedValue) public returns (bool) {\nallowed[msg.sender][_spender] = allowed[msg.sender][_spender].add(_addedValue);\nemit Approval(msg.sender, _spender, allowed[msg.sender][_spender]);\nreturn true;\n}\nfunction decreaseApproval(address _spender, uint _subtractedValue) public returns (bool) {\nuint oldValue = allowed[msg.sender][_spender];\nif (_subtractedValue > oldValue) {\nallowed[msg.sender][_spender] = 0;\n} else {\nallowed[msg.sender][_spender] = oldValue.sub(_subtractedValue);\n}\nemit Approval(msg.sender, _spender, allowed[msg.sender][_spender]);\nreturn true;\n}\n}\ncontract eXdoradoTrade is StandardToken, Ownable {\n\nstring public name;\nstring public symbol;\nuint8 public decimals;\nuint256 public initialSupply;\nconstructor() public {\nname = 'eXdorado Trade';\nsymbol = 'EXT';\ndecimals = 18;\ninitialSupply = 100000000 * 10 ** uint256(decimals);\ntotalSupply_ = initialSupply;\nbalances[owner] = initialSupply;\nemit Transfer(0x0, owner, initialSupply);\n}\n}"}
-            }
-        })
+        'language': 'Solidity',
+        'sources': {
+            'flattenedContract.sol': {"content":"pragma solidity 0.5.0; contract Hello{}"}
+        }
+    })
+
+
+@pytest.mark.parametrize("input_json_file, expected_output_json_file", [
+    ("resources/stdjson-input-0.5.0.json", "resources/stdjson-output-0.5.0.json"),
+])
+def test_main_standard_json(input_json_file, expected_output_json_file):
+    """
+    Test the standard_json option, should produce JSON output
+    """
+    sys.argv = ["solc", "--standard-json"]
+
+    print("Hey, interesting")
+
+    jsonInput = open(input_json_file, 'r', encoding='utf-8')
+    captured_stdout = open("/tmp/captured_stdout", 'w', encoding='utf-8')
+    original_stdout = sys.stdout
+    sys.stdout = captured_stdout
+    original_stdin = sys.stdin
+    sys.stdin = jsonInput
+
+    assert(main() == 0)
+
+    sys.stdout = original_stdout
+    sys.stdin = original_stdin
+    captured_stdout.close()
+    jsonInput.close()
+
+    produced_output_json = [elem.rstrip('\n') for elem in list(open("/tmp/captured_stdout", "r"))]
+    expected_output_json = [elem.rstrip('\n') for elem in list(open(expected_output_json_file, "r"))]
+
+    print("Captured OUTPUT---")
+    print(produced_output_json)
+
+    print("Expected OUTPUT---")
+    print(expected_output_json)
+
+    assert(expected_output_json == produced_output_json)
