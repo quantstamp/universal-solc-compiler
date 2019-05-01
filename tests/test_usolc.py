@@ -280,14 +280,12 @@ def test_main_standard_json(input_json_file, expected_output_json_file):
     """
     sys.argv = ["solc", "--standard-json"]
 
-    print("Hey, interesting")
-
-    jsonInput = open(input_json_file, 'r', encoding='utf-8')
+    json_input = open(input_json_file, 'r', encoding='utf-8')
     captured_stdout = open("/tmp/captured_stdout", 'w', encoding='utf-8')
     original_stdout = sys.stdout
     sys.stdout = captured_stdout
     original_stdin = sys.stdin
-    sys.stdin = jsonInput
+    sys.stdin = json_input
 
     assert(main() == 0)
 
@@ -298,11 +296,5 @@ def test_main_standard_json(input_json_file, expected_output_json_file):
 
     produced_output_json = [elem.rstrip('\n') for elem in list(open("/tmp/captured_stdout", "r"))]
     expected_output_json = [elem.rstrip('\n') for elem in list(open(expected_output_json_file, "r"))]
-
-    print("Captured OUTPUT---")
-    print(produced_output_json)
-
-    print("Expected OUTPUT---")
-    print(expected_output_json)
 
     assert(expected_output_json == produced_output_json)
