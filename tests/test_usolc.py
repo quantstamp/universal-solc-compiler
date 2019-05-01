@@ -261,15 +261,6 @@ def test_main_exception_return_1(sys_argv):
     assert(main() == 1)
 
 
-def test_solc_compile_standard():
-    compile_standard({
-        'language': 'Solidity',
-        'sources': {
-            'flattenedContract.sol': {"content":"pragma solidity 0.5.0; contract Hello{}"}
-        }
-    })
-
-
 @pytest.mark.parametrize("input_json_file, expected_output_json_file", [
     ("resources/stdjson-input-0.5.0.json", "resources/stdjson-output-0.5.0.json"),
 ])
