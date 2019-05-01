@@ -282,7 +282,7 @@ def test_main_standard_json(input_json_file, expected_output_json_file):
     sys.stdout = original_stdout
     sys.stdin = original_stdin
     captured_stdout.close()
-    jsonInput.close()
+    json_input.close()
 
     produced_output_json = [elem.rstrip('\n') for elem in list(open("/tmp/captured_stdout", "r"))]
     expected_output_json = [elem.rstrip('\n') for elem in list(open(expected_output_json_file, "r"))]
