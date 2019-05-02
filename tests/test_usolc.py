@@ -7,8 +7,8 @@
 #                                                                                                  #
 ####################################################################################################
 
-
 from usolc.usolc import *
+from solc import compile_standard
 import pytest
 
 
@@ -259,3 +259,32 @@ def test_main_exception_return_1(sys_argv):
     """
     sys.argv = sys_argv
     assert(main() == 1)
+
+
+@pytest.mark.parametrize("input_json_file, expected_output_json_file", [
+    ("resources/stdjson-input-0.5.0.json", "resources/stdjson-output-0.5.0.json"),
+])
+def test_main_standard_json(input_json_file, expected_output_json_file):
+    """
+    Test the standard_json option, should produce JSON output
+    """
+    sys.argv = ["solc", "--standard-json"]
+
+    json_input = open(input_json_file, 'r', encoding='utf-8')
+    captured_stdout = open("/tmp/captured_stdout", 'w', encoding='utf-8')
+    original_stdout = sys.stdout
+    sys.stdout = captured_stdout
+    original_stdin = sys.stdin
+    sys.stdin = json_input
+
+    assert(main() == 0)
+
+    sys.stdout = original_stdout
+    sys.stdin = original_stdin
+    captured_stdout.close()
+    json_input.close()
+
+    produced_output_json = [elem.rstrip('\n') for elem in list(open("/tmp/captured_stdout", "r"))]
+    expected_output_json = [elem.rstrip('\n') for elem in list(open(expected_output_json_file, "r"))]
+
+    assert(expected_output_json == produced_output_json)

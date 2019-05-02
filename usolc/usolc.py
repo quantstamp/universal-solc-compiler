@@ -24,6 +24,7 @@ import sys
 import re
 import subprocess
 import semver
+import json
 from enum import Enum
 from exceptions.pragmaline_notfound_error import PragmaLineNotFoundError
 from exceptions.noversion_available_by_sol import NoVersionAvailableBySol
@@ -37,7 +38,10 @@ class VersionChoosing(Enum):
 
 PRAGMA_SOLIDITY = re.compile(r'pragma\ssolidity\s(.*);', re.IGNORECASE)
 PREFIX_FILELOC = re.compile(r'(.*)=(.*)', re.IGNORECASE)
-additional_info = False
+flag_additional_info = False
+flag_standard_json = False
+
+jsonData = None
 
 SOLC_ARGUMENTS_WITH_OPTIONS = [
     "--evm-version",
@@ -77,7 +81,7 @@ def extract_pragma_line(filename):
     """
     pragma_line = None
 
-    with open(filename, 'r') as file:
+    with open(filename, 'r', encoding='utf-8') as file:
         for line in file:
             if PRAGMA_SOLIDITY.match(line) is not None:
                 pragma_line = line
@@ -118,7 +122,7 @@ def extract_arguments(sargv):
     Iterate through the arguments for the universal compiler,
     then remove them if they're not needed in the usual solc compiler
     """
-    global additional_info
+    global flag_additional_info, flag_standard_json
     argv = sargv[1:]
 
     file_listed = []
@@ -137,13 +141,33 @@ def extract_arguments(sargv):
             version_selection_strategy_str = arg
             non_native_option_expected = False
         elif arg == "-uinfo":
-            additional_info = True
+            flag_additional_info = True
         elif expecting_native_option:
             expecting_native_option = False
             native_argv.append(arg)
         elif arg in SOLC_ARGUMENTS_WITH_OPTIONS:
             expecting_native_option = True
             native_argv.append(arg)
+        elif arg == "--standard-json":
+            # currently ignoring bzzr and ipfs function
+            flag_standard_json = True
+
+            with open("/tmp/usolc-stdjson-tmp", 'w', encoding='utf-8') as file:
+                for line in sys.stdin:
+                    file.write(line)
+                file.close()
+
+            jsonInput = open("/tmp/usolc-stdjson-tmp", 'r', encoding='utf-8')
+            jsonData = json.load(jsonInput)
+            jsonInput.close()
+            native_argv.append(arg)
+
+            for contractFilename, value in jsonData["sources"].items():
+                contractTmp = open("/tmp/usolc-contract-tmp", "w", encoding="utf-8")
+                contractTmp.write(value["content"])
+                contractTmp.close()
+                file_listed.append("/tmp/usolc-contract-tmp")
+
         elif arg[0] == "-" or PREFIX_FILELOC.match(arg) is not None:
             native_argv.append(arg)
         else:
@@ -263,27 +287,34 @@ def read_version_list(version_list_filename):
     """
     Opens the file and treat each line as a version available for solc
     """
-    list_file = open(version_list_filename, "r")
+    list_file = open(version_list_filename, "r", encoding='utf-8')
     list_with_newline = list(list_file)
     nl_removed_list = [elem.rstrip('\n') for elem in list_with_newline]
     return list(nl_removed_list)
 
 
 def run_solc(version_chosen, native_argv):
-    if additional_info:
+    global flag_additional_info, flag_standard_json
+    if flag_additional_info:
         print("solc version: " + version_chosen)
         print("#################################################")
 
-    return subprocess.run(["/usr/local/bin/solc-versions/solc-" + version_chosen] + native_argv)
+    if flag_standard_json:
+        jsonInput = open("/tmp/usolc-stdjson-tmp", 'r', encoding='utf-8')
+        return subprocess.run(["/usr/local/bin/solc-versions/solc-" + version_chosen] + native_argv, stdin=jsonInput, stdout=sys.stdout)
+        jsonInput.close()
+    else:
+        return subprocess.run(["/usr/local/bin/solc-versions/solc-" + version_chosen] + native_argv)
 
 
 def main():
+    global flag_additional_info
     valid_versions = read_version_list("/usr/local/bin/solc-versions/solc_version_list")
 
     try:
+        flag_additional_info = False
         [filename, version_selection_strategy, native_argv] = extract_arguments(sys.argv)
-
-        if additional_info:
+        if flag_additional_info:
             print("#################################################")
             print("Available solc versions are: " + str(valid_versions))
 
