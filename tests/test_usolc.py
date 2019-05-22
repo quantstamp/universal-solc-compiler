@@ -78,6 +78,15 @@ def test_getrule_from_file(filename, expected_rule):
     assert(expected_rule == extracted_rule) 
 
 
+@pytest.mark.parametrize("filename,expected_rules", [
+    ("resources/multipragma_exist.sol", ["^0.4.24", "0.4.24"]),
+    ("resources/multipragma_nonexistent.sol", ["^0.4.24", "0.4.23"]),
+])
+def test_getrule_from_file(filename, expected_rules):
+    """ Test getrule_from_fiole """
+    extracted_rules = getrules_from_file(filename)
+    assert(expected_rules == extracted_rules)
+
 @pytest.mark.parametrize("sys_argv, expected_result", [
     (["solc", "hello.sol", "-U", "0.4.2+", "--abi", "extrarandom", "-uinfo"],
      ["hello.sol", ["0.4.2", VersionChoosing.NEWEST], ["hello.sol", "--abi", "extrarandom"]]),

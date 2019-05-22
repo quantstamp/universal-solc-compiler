@@ -94,6 +94,25 @@ def extract_pragma_line(filename):
     return pragma_line
 
 
+def extract_pragma_lines(filename):
+    """
+    Opens the file, then find the lines that indicates the solidity version
+    Returns all the lines as an array
+    """
+    pragma_lines = []
+
+    with open(filename, 'r', encoding='utf-8') as file:
+        for line in file:
+            if PRAGMA_SOLIDITY.match(line) is not None:
+                pragma_lines.append(line)
+    file.close()
+
+    if not pragma_lines:
+        raise PragmaLineNotFoundError("Cannot find pragma line that specifies version")
+
+    return pragma_lines
+
+
 def getrule_from_pragma(line):
     """
     Extract the rule from the version line in solidity file.
@@ -116,6 +135,20 @@ def getrule_from_file(filename):
 
     return semver_rule
 
+def getrules_from_file(filename):
+    """
+    Extract the versioning rule from the solidity file
+    """
+    try:
+        pragma_lines = extract_pragma_lines(filename)
+        semver_rules = []
+        for pragma_line in pragma_lines:
+            semver_rule = getrule_from_pragma(pragma_line)
+            semver_rules.append(semver_rule)
+    except PragmaLineNotFoundError:
+        semver_rules = ["*"]
+
+    return semver_rules
 
 def extract_arguments(sargv):
     """
@@ -264,12 +297,15 @@ def choose_version_by_argument(available_versions, filename, version_selection_s
         filtered_by_sol_compiler_list = available_versions
         sol_rule = ""
     else:
-        sol_rule = getrule_from_file(filename)
-        filtered_by_sol_compiler_list = list(semver_filter(available_versions, sol_rule))
-        if not filtered_by_sol_compiler_list:
-            raise NoVersionAvailableBySol(
-                available_versions, sol_rule,
-                "No solc version that satisfies the requirement of the solidity file")
+        sol_rules = getrules_from_file(filename)
+        filtered_by_sol_compiler_list = available_versions
+
+        for sol_rule in sol_rules:
+            filtered_by_sol_compiler_list = list(semver_filter(filtered_by_sol_compiler_list, sol_rule))
+            if not filtered_by_sol_compiler_list:
+                raise NoVersionAvailableBySol(
+                    available_versions, sol_rule,
+                    "No solc version that satisfies the requirement of the solidity file")
 
     user_rule = version_selection_strategy
     version_chosen = choose_version_by_strategy(filtered_by_sol_compiler_list,
