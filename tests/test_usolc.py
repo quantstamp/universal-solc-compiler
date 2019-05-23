@@ -82,7 +82,7 @@ def test_getrule_from_file(filename, expected_rule):
     ("resources/multipragma_exist.sol", ["^0.4.24", "0.4.24"]),
     ("resources/multipragma_nonexistent.sol", ["^0.4.24", "0.4.23"]),
 ])
-def test_getrule_from_file(filename, expected_rules):
+def test_getrules_from_file(filename, expected_rules):
     """ Test getrule_from_fiole """
     extracted_rules = getrules_from_file(filename)
     assert(expected_rules == extracted_rules)
