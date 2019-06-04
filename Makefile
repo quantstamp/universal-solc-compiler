@@ -56,13 +56,31 @@ run-securify: build-securify
         usolc-securify-node sh
 
 push-usolc-entry:
-	docker tag usolc-node-entry qspprotocol/usolc-entry:latest
-	docker push qspprotocol/usolc-entry:latest
+	docker tag usolc-node-entry qspprotocol/usolc-entry:experimental
+	docker push qspprotocol/usolc-entry:experimental
 
 push-securify:
-	docker tag usolc-securify-node qspprotocol/securify-usolc:latest
-	docker push qspprotocol/securify-usolc:latest
+	docker tag usolc-securify-node qspprotocol/securify-usolc:experimental
+	docker push qspprotocol/securify-usolc:experimental
 
 push-mythril:
+	docker tag usolc-mythril-node qspprotocol/mythril-usolc:experimental
+	docker push qspprotocol/mythril-usolc:experimental
+
+publish-usolc-entry:
+	docker tag usolc-node-entry qspprotocol/usolc-entry:develop
+	docker tag usolc-node-entry qspprotocol/usolc-entry:latest
+	docker push qspprotocol/usolc-entry:develop
+	docker push qspprotocol/usolc-entry:latest
+
+publish-securify:
+	docker tag usolc-securify-node qspprotocol/securify-usolc:develop
+	docker tag usolc-securify-node qspprotocol/securify-usolc:latest
+	docker push qspprotocol/securify-usolc:develop
+	docker push qspprotocol/securify-usolc:latest
+
+publish-mythril:
+	docker tag usolc-mythril-node qspprotocol/mythril-usolc:develop
 	docker tag usolc-mythril-node qspprotocol/mythril-usolc:latest
+	docker push qspprotocol/mythril-usolc:develop
 	docker push qspprotocol/mythril-usolc:latest
