@@ -7,5 +7,8 @@
 # Demonstration License Terms at <https://s3.amazonaws.com/qsp-protocol-license/LICENSE.txt>.      #
 #                                                                                                  #
 ####################################################################################################
-make build-entry
-cp run_usolc_docker.sh /usr/local/bin/solc
+
+readonly SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+export USOLC_HOME="$(dirname $SCRIPT_DIR)"
+
+PYTHONPATH=./tests:./src/usolc pytest --cov=usolc -s -v --disable-pytest-warnings --cov-config .coveragerc --cov-report term-missing --cov-report html tests/

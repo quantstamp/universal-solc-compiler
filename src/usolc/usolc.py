@@ -20,6 +20,7 @@
 
 """
 
+import os
 import sys
 import re
 import subprocess
@@ -30,6 +31,7 @@ from exceptions.pragmaline_notfound_error import PragmaLineNotFoundError
 from exceptions.noversion_available_by_sol import NoVersionAvailableBySol
 from exceptions.noversion_available_by_user import NoVersionAvailableByUser
 
+USOLC_HOME = os.environ['USOLC_HOME']
 
 class VersionChoosing(Enum):
     NEWEST = 1
@@ -337,15 +339,17 @@ def run_solc(version_chosen, native_argv):
 
     if flag_standard_json:
         jsonInput = open("/tmp/usolc-stdjson-tmp", 'r', encoding='utf-8')
-        return subprocess.run(["/usr/local/bin/solc-versions/solc-" + version_chosen] + native_argv, stdin=jsonInput, stdout=sys.stdout)
+        return subprocess.run(["{0}/bin/solc-".format(USOLC_HOME) + version_chosen] + native_argv, stdin=jsonInput, stdout=sys.stdout)
         jsonInput.close()
     else:
-        return subprocess.run(["/usr/local/bin/solc-versions/solc-" + version_chosen] + native_argv)
+        return subprocess.run(["{0}/bin/solc-".format(USOLC_HOME) + version_chosen] + native_argv)
 
+def fetch_supported_solc_versions():
+    return [f.replace("solc-", "") for f in os.listdir("{0}/bin".format(USOLC_HOME)) if re.match(r'solc-[0-9.]+', f)]
 
 def main():
-    global flag_additional_info
-    valid_versions = read_version_list("/usr/local/bin/solc-versions/solc_version_list")
+    global flag_additional_info    
+    valid_versions = fetch_supported_solc_versions()
 
     try:
         flag_additional_info = False
