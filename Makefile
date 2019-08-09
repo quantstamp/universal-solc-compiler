@@ -27,7 +27,8 @@ test-ci: build
        -v /var/run/docker.sock:/var/run/docker.sock \
 	   -v $(PWD)/tests/coverage:/app/tests/coverage \
        -v /tmp:/tmp \
-	   usolc sh -c "bin/run_tests"
+       --entrypoint sh \
+	   usolc -c "bin/run_tests"
 
 clean:
 	find . | egrep "^.*/(__pycache__|.*\.pyc|tests/coverage/htmlcov|tests/coverage/.coverage|app.tar)$$" | xargs rm -rf
