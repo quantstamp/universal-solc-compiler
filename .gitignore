@@ -1,7 +1,7 @@
-.idea/
-usolc/__pycache__/
-usolc/exceptions/__pycache__/
-tests/__pycache__/
+*.DS_Store
+.idea
+__pycache__/
+.vscode
+*.pyc
 tests/coverage/.coverage
 tests/coverage/htmlcov
-*.DS_Store

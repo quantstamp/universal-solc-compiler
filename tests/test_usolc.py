@@ -7,10 +7,18 @@
 #                                                                                                  #
 ####################################################################################################
 
-from usolc.usolc import *
-from solc import compile_standard
+import os
 import pytest
 
+from usolc import *
+from solc import compile_standard
+
+
+def resource(path):
+    """
+    Returns the filesystem path of a test resource.
+    """
+    return "{0}/../tests/resources/{1}".format(os.path.dirname(__file__), path)
 
 @pytest.fixture
 def sample_version_list():
@@ -34,7 +42,7 @@ def test_semver_filter(sample_version_list, rule_text, expected_result):
 ])
 def test_extract_pragma_line(filename, expected_line):
     """ Test extract_pragma_line for cases that there both the file and the pragma line exist """
-    extracted_line = extract_pragma_line("resources/"+filename)
+    extracted_line = extract_pragma_line(resource(filename))
     assert(expected_line == extracted_line) 
 
 
@@ -44,7 +52,7 @@ def test_extract_pragma_line_throws_pragmanotfound():
     when the file exists but the line doesn't
     """
     with pytest.raises(PragmaLineNotFoundError):
-        extract_pragma_line("resources/empty.sol")
+        extract_pragma_line(resource("empty.sol"))
 
 
 def test_extract_pragma_line_throws_file_not_found():
@@ -66,11 +74,11 @@ def test_getrule_from_pragma(pragma, expected_rule):
 
 
 @pytest.mark.parametrize("filename,expected_rule", [
-    ("resources/exactly_one.sol", "0.4.18"),
-    ("resources/caret_0.4.sol", "^0.4.18"),
-    ("resources/range.sol", ">=0.4.22 <0.6.0"),
-    ("resources/range_or_one.sol", "0.4.21 || >=0.4.25 <0.6.0"),
-    ("resources/empty.sol", "*"),
+    (resource("exactly_one.sol"), "0.4.18"),
+    (resource("caret_0.4.sol"), "^0.4.18"),
+    (resource("range.sol"), ">=0.4.22 <0.6.0"),
+    (resource("range_or_one.sol"), "0.4.21 || >=0.4.25 <0.6.0"),
+    (resource("empty.sol"), "*"),
 ])
 def test_getrule_from_file(filename, expected_rule):
     """ Test getrule_from_fiole """
@@ -79,8 +87,8 @@ def test_getrule_from_file(filename, expected_rule):
 
 
 @pytest.mark.parametrize("filename,expected_rules", [
-    ("resources/multipragma_exist.sol", ["^0.4.24", "0.4.24"]),
-    ("resources/multipragma_nonexistent.sol", ["^0.4.24", "0.4.23"]),
+    (resource("multipragma_exist.sol"), ["^0.4.24", "0.4.24"]),
+    (resource("multipragma_nonexistent.sol"), ["^0.4.24", "0.4.23"]),
 ])
 def test_getrules_from_file(filename, expected_rules):
     """ Test getrule_from_fiole """
@@ -185,7 +193,7 @@ def test_choose_version_by_argument_normal(sample_version_list,
     if filename is None:
         filelocation = None
     else:
-        filelocation = "resources/" + filename
+        filelocation = resource(filename)
 
     result_version = \
         choose_version_by_argument(sample_version_list, filelocation, version_selection_strategy)
@@ -199,7 +207,7 @@ def test_choose_version_by_argument_throws_no_version_available_by_sol():
     it should throw NoVersionAvailableBySol
     """
     with pytest.raises(NoVersionAvailableBySol):
-        choose_version_by_argument(["0.3.9"], "resources/exactly_one.sol", ["*", VersionChoosing.NEWEST])
+        choose_version_by_argument(["0.3.9"], resource("exactly_one.sol"), ["*", VersionChoosing.NEWEST])
 
 
 def test_choose_version_by_argument_throws_no_version_available_by_user():
@@ -210,20 +218,7 @@ def test_choose_version_by_argument_throws_no_version_available_by_user():
     """
     with pytest.raises(NoVersionAvailableByUser):
         choose_version_by_argument(["0.4.18"],
-                                   "resources/exactly_one.sol", ["^0.4.19", VersionChoosing.NEWEST])
-
-
-def test_read_version_list():
-    """
-    Test read_version_list to see if it properly reads the versions provided in the file,
-    The versions should not include special characters like \n or \r
-    """
-    extracted_list = read_version_list("usolc/solc_version_list")
-    expected_list = ["0.5.4", "0.5.3", "0.5.2", "0.5.1", "0.5.0", "0.4.25", "0.4.24", "0.4.23",
-                     "0.4.22", "0.4.21", "0.4.20", "0.4.19", "0.4.18", "0.4.17", "0.4.16",
-                     "0.4.15", "0.4.14", "0.4.13", "0.4.12", "0.4.11", "0.4.10", "0.4.9",
-                     "0.4.8", "0.4.7", "0.4.6", "0.4.5"]
-    assert(expected_list == extracted_list)
+                                   resource("exactly_one.sol"), ["^0.4.19", VersionChoosing.NEWEST])
 
 
 def test_run_solc():
@@ -231,18 +226,18 @@ def test_run_solc():
     Test run_solc, passing normal arguments to see if it properly runs without failure
     """
     version_chosen = "0.4.25"
-    native_argv = ["resources/caret_0.4.sol", "--abi"]
+    native_argv = [resource("caret_0.4.sol"), "--abi"]
     process_return = run_solc(version_chosen, native_argv)
     assert(process_return.returncode == 0)
 
 
 @pytest.mark.parametrize("sys_argv, expected_bin_file", [
-    (["solc", "resources/caret_0.4.sol", "--bin", "-o", "test_bin_1", "-U", "0.4.25", "-uinfo"],
-     "resources/caret_0.4.25.bin"),
-    (["solc", "resources/caret_0.5.sol", "--bin", "-o", "test_bin_2", "-U", "0.5.0"],
-     "resources/caret_0.5.0.bin"),
-    (["solc", "resources/caret_0.5", "--bin", "-o", "test_bin_3", "-U", "0.5.3", "-uinfo"],
-     "resources/caret_0.5_nosol.bin"),
+    (["solc", resource("caret_0.4.sol"), "--bin", "-o", "test_bin_1", "-U", "0.4.25", "-uinfo"],
+     resource("caret_0.4.25.bin")),
+    (["solc", resource("caret_0.5.sol"), "--bin", "-o", "test_bin_2", "-U", "0.5.0"],
+     resource("caret_0.5.0.bin")),
+    (["solc", resource("caret_0.5"), "--bin", "-o", "test_bin_3", "-U", "0.5.3", "-uinfo"],
+     resource("caret_0.5_nosol.bin")),
 ])
 def test_main(sys_argv, expected_bin_file):
     """
@@ -258,8 +253,8 @@ def test_main(sys_argv, expected_bin_file):
 
 @pytest.mark.parametrize("sys_argv", [
     (["solc", "some_random_file_should_not_exist.sol", "--bin", "-o", "test_bin", "-U", "0.5.0"]),
-    (["solc", "resources/exactly_0.6.0.sol", "--bin", "-o", "test_bin"]),
-    (["solc", "resources/caret_0.5.sol", "--bin", "-o", "test_bin", "-U", "0.4.25"]),
+    (["solc", resource("exactly_0.6.0.sol"), "--bin", "-o", "test_bin"]),
+    (["solc", resource("caret_0.5.sol"), "--bin", "-o", "test_bin", "-U", "0.4.25"]),
 ])
 def test_main_exception_return_1(sys_argv):
     """
@@ -271,7 +266,7 @@ def test_main_exception_return_1(sys_argv):
 
 
 @pytest.mark.parametrize("input_json_file, expected_output_json_file", [
-    ("resources/stdjson-input-0.5.0.json", "resources/stdjson-output-0.5.0.json"),
+    (resource("stdjson-input-0.5.0.json"), resource("stdjson-output-0.5.0.json")),
 ])
 def test_main_standard_json(input_json_file, expected_output_json_file):
     """

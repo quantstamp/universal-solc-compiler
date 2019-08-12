@@ -20,30 +20,19 @@ RUN apk add --no-cache python3 && \
   rm -r /root/.cache
 
 RUN apk add --no-cache libtool
-RUN apk add vim
 
-# Install solc
-## Create solc-versions directory
-RUN mkdir /usr/local/bin/solc-versions
+RUN mkdir /usolc
+WORKDIR /usolc
 
-# Create a directory to host testing files
-RUN mkdir ./app
-WORKDIR ./app
 COPY . .
+RUN mkdir /usolc/tests/coverage
 
-RUN chmod +x run_tests
 # Install pip requirements for usolc
 RUN pip3 install -r requirements.txt
 
-# usolc setup
 # Running the solc download
-RUN chmod +x ./usolc/solc_download
-RUN ./usolc/solc_download
+RUN ./bin/solc_download
 
-# Copying usolc scripts
-RUN cp ./usolc/usolc.py /usr/local/bin/solc-versions/usolc.py
-RUN cp -r ./usolc/exceptions /usr/local/bin/solc-versions/exceptions
-RUN cp ./usolc/solc_version_list /usr/local/bin/solc-versions/solc_version_list
-RUN cp ./usolc/solc /usr/local/bin/solc
-RUN chmod +x /usr/local/bin/solc
+ENV PATH="/usolc/bin:${PATH}"
 
+ENTRYPOINT ["/usolc/bin/solc"]

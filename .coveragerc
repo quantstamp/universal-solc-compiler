@@ -1,5 +1,9 @@
 [run]
 data_file=tests/coverage/.coverage
 
+[paths]
+source =
+    src/usolc
+
 [html]
 directory=tests/coverage/htmlcov
