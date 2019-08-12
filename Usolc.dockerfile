@@ -25,6 +25,7 @@ RUN mkdir /usolc
 WORKDIR /usolc
 
 COPY . .
+RUN mkdir /usolc/tests/coverage
 
 # Install pip requirements for usolc
 RUN pip3 install -r requirements.txt
